@@ -48,6 +48,7 @@ def pes_diff_bin_imp(pes_diff_fname):
 
 		scn.eyes_size = eyes_size[0]
 
+
 		bpy.data.objects['mouth'].location[0] = (m_pos[0]) - mouth_origin[0]
 		bpy.data.objects['mouth'].location[1] = (m_pos[2]*-1) - mouth_origin[1]
 		bpy.data.objects['mouth'].location[2] = (m_pos[1]) + mouth_origin[2]
