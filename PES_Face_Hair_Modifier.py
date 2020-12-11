@@ -1,3 +1,10 @@
+import bpy, os, fnmatch, binascii, bmesh, shutil, os.path, struct, bpy.props, bpy_extras.io_utils, re
+from struct import *
+from bpy.props import *
+from Data import FmdlFile, Ftex, IO, PesSkeletonData, TiNA
+from configparser import ConfigParser
+config = ConfigParser()
+
 bl_info = {
 	"name": "PES Face/Hair Modifier",
 	"author": "the4chancup - MjTs-140914",
@@ -12,27 +19,16 @@ bl_info = {
 	"category": "System"
 }
 
-import bpy, os, fnmatch, binascii, bmesh, shutil, os.path, struct, bpy.props, bpy_extras.io_utils, re
-from struct import *
-from bpy.props import *
-from Data import FmdlFile, Ftex, IO, PesSkeletonData, TiNA
-from configparser import ConfigParser
-config = ConfigParser()
+TEMPPATH = str()
+TEMPPATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..\\addons\\Data')) 
+GZSPATH = '"%s\\Gzs\\GzsTool.exe"' % TEMPPATH 
+FtexTools ='"%s\\Gzs\\FtexTools.exe"' % TEMPPATH 
+texconvTools = '"%s\\Gzs\\texconv.exe"' % TEMPPATH 
+ini_sett = '%s\\Gzs\\Settings.ini' % TEMPPATH 
 
-
-TEMPPATH = ""
-TEMPPATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', TEMPPATH))
-TEMPPATH = TEMPPATH + "\\addons\\Data"
-GZSPATH = TEMPPATH + '\\Gzs\\GzsTool.exe'
-GZSPATH = '"' + GZSPATH + '"'
-FtexTools = TEMPPATH + '\\Gzs\\FtexTools.exe'
-FtexTools = '"' + FtexTools + '"'
-texconvTools = TEMPPATH + '\\Gzs\\texconv.exe'
-texconvTools = '"' + texconvTools + '"'
-ini_sett = TEMPPATH + '\\Gzs\\Settings.ini'
 
 pes_diff_bin_data, IDoldname = [] , []
-
+eyeL_origin, eyeR_origin, mouth_origin = [0.02807705,0.1448301,1.69668636147], [0.02754705,0.1446231,1.69682636147], [-0.000365,0.1479722561,1.63275]
 
 def pes_diff_bin_imp(pes_diff_fname):
 	global pes_diff_bin_data
@@ -52,18 +48,17 @@ def pes_diff_bin_imp(pes_diff_fname):
 
 		scn.eyes_size = eyes_size[0]
 
+		bpy.data.objects['mouth'].location[0] = (m_pos[0]) - mouth_origin[0]
+		bpy.data.objects['mouth'].location[1] = (m_pos[2]*-1) - mouth_origin[1]
+		bpy.data.objects['mouth'].location[2] = (m_pos[1]) + mouth_origin[2]
 
-		bpy.data.objects['mouth'].location[0] = (m_pos[0]) - 0.001401+0.001766
-		bpy.data.objects['mouth'].location[1] = (m_pos[2]*-1)-0.1479722561
-		bpy.data.objects['mouth'].location[2] = (m_pos[1]) +  1.66625 - 0.0335
+		bpy.data.objects['eyeR'].location[0] = (eyes_posR[2] * -1) - eyeR_origin[0]
+		bpy.data.objects['eyeR'].location[1] = (eyes_posR[1]) - eyeR_origin[1]
+		bpy.data.objects['eyeR'].location[2] = (eyes_posR[0]) + eyeR_origin[2]
 
-		bpy.data.objects['eyeR'].location[0] = (eyes_posR[2] * -1) - 0.02685005
-		bpy.data.objects['eyeR'].location[1] = (eyes_posR[1]) - 0.1463891
-		bpy.data.objects['eyeR'].location[2] = (eyes_posR[0]) + 1.69670636147
-
-		bpy.data.objects['eyeL'].location[0] = (eyes_posL[2]*-1) + 0.02685005
-		bpy.data.objects['eyeL'].location[1] = (eyes_posL[1]) - 0.1463891
-		bpy.data.objects['eyeL'].location[2] = (eyes_posL[0]) + 1.69670636147
+		bpy.data.objects['eyeL'].location[0] = (eyes_posL[2]*-1) + eyeL_origin[0]
+		bpy.data.objects['eyeL'].location[1] = (eyes_posL[1]) - eyeL_origin[1]
+		bpy.data.objects['eyeL'].location[2] = (eyes_posL[0]) + eyeL_origin[2]
 
 		bpy.data.objects['eyeR'].scale[0] = eyes_size[0]
 		bpy.data.objects['eyeR'].scale[1] = eyes_size[1]
@@ -82,17 +77,17 @@ def pes_diff_bin_exp(pes_diff_fname):
 	header_string = str(header_data, "utf-8")
 	if header_string == "FACE":
 
-		m0 = (bpy.data.objects['mouth'].location[0])+ 0.001401-0.001766
-		m2 = (bpy.data.objects['mouth'].location[1] + 0.1479722561)*-1
-		m1 = (bpy.data.objects['mouth'].location[2])  - 1.66625 + 0.0335
+		m0 = (bpy.data.objects['mouth'].location[0] + mouth_origin[0])
+		m2 = (bpy.data.objects['mouth'].location[1] +  mouth_origin[1])*-1
+		m1 = (bpy.data.objects['mouth'].location[2] - mouth_origin[2])
 
-		rx = (bpy.data.objects['eyeR'].location[0] + 0.02685005)*-1
-		ry = (bpy.data.objects['eyeR'].location[1] + 0.1463891)
-		rz = (bpy.data.objects['eyeR'].location[2] - 1.69670636147)
+		rx = (bpy.data.objects['eyeR'].location[0] + eyeR_origin[0])*-1
+		ry = (bpy.data.objects['eyeR'].location[1] + eyeR_origin[1])
+		rz = (bpy.data.objects['eyeR'].location[2] - eyeR_origin[2])
 		
-		lx = (bpy.data.objects['eyeL'].location[0] - 0.02685005)*-1
-		ly = (bpy.data.objects['eyeL'].location[1] + 0.1463891)
-		lz = (bpy.data.objects['eyeL'].location[2] - 1.69670636147)
+		lx = (bpy.data.objects['eyeL'].location[0] - eyeL_origin[0])*-1
+		ly = (bpy.data.objects['eyeL'].location[1] + eyeL_origin[1])
+		lz = (bpy.data.objects['eyeL'].location[2] - eyeL_origin[2])
 
 		bpy.data.objects['eyeR'].scale[0] = scn.eyes_size
 		bpy.data.objects['eyeR'].scale[1] = scn.eyes_size
