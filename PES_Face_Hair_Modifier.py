@@ -31,7 +31,6 @@ texconvTools = TEMPPATH + '\\Gzs\\texconv.exe'
 texconvTools = '"' + texconvTools + '"'
 ini_sett = TEMPPATH + '\\Gzs\\Settings.ini'
 
-
 pes_diff_bin_data, IDoldname = [] , []
 
 
