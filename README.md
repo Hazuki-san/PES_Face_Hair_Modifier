@@ -52,6 +52,7 @@ Thanks to the following people who have contributed to this project:
 > * [Atvaark](https://github.com/Atvaark)
 > * [zlac](https://evo-web.co.uk/members/zlac.136687/)
 > * [Blenderanon]("")
+> * [魔大农](https://gitlab.com/Modanung/TiNA)
 
 
 ## License
