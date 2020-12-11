@@ -38,6 +38,7 @@ Thanks to the following people who have contributed to this project:
 * [the4chancup](https://github.com/the4chancup)
 * [Atvaark *GzsTool*](https://github.com/Atvaark)
 * [zlac *pes_diff.bin*](https://evo-web.co.uk/threads/pes-2018-fmdl-face-editing-tutorial-3dsmax-blender.78154/post-3265017)
+* [魔大农](https://gitlab.com/Modanung/TiNA)
 
 #### Credits:
 
