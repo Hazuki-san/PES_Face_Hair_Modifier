@@ -146,8 +146,8 @@ def convert_dds(ftexfilepath):
 
 def texture_covert(dirPath):
 	for root, directories, filenames in os.walk(dirPath):
-		for f1 in filenames:
-			filename, extension = os.path.splitext(f1)
+		for fileName  in filenames:
+			filename, extension = os.path.splitext(fileName)
 			if extension.lower() == '.dds':
 				ddsPath = os.path.join(root, filename + extension)
 				texconv(ddsPath, root, " -r -y -alpha -f BC7_UNORM -dx10 -ft dds -o ", False)
