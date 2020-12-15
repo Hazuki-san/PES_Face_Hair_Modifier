@@ -1,14 +1,17 @@
-import bpy, os, fnmatch, binascii, bmesh, shutil, os.path, struct, bpy.props, bpy_extras.io_utils, re
+import bpy, os, fnmatch, binascii, bmesh, shutil, os.path, struct, bpy.props, bpy_extras.io_utils, re, pathlib
 from struct import *
 from bpy.props import *
-from Data import FmdlFile, Ftex, IO, PesSkeletonData, TiNA
+from Data import FmdlFile, Ftex, IO, PesSkeletonData, TiNA, PesFoxShader
 from configparser import ConfigParser
+from bpy.props import (IntProperty, BoolProperty, StringProperty, FloatProperty, CollectionProperty)
+
+
 config = ConfigParser()
 
 bl_info = {
 	"name": "PES Face/Hair Modifier",
 	"author": "the4chancup - MjTs-140914",
-	"version": (1, 93, 0),
+	"version": (1, 93, 1),
 	"blender": (2, 79, 0),
 	"api": 35853,
 	"location": "Under Scene Tab",
@@ -24,7 +27,8 @@ TEMPPATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file_
 GZSPATH = '"%s\\Gzs\\GzsTool.exe"' % TEMPPATH 
 FtexTools ='"%s\\Gzs\\FtexTools.exe"' % TEMPPATH 
 texconvTools = '"%s\\Gzs\\texconv.exe"' % TEMPPATH 
-ini_sett = '%s\\Gzs\\Settings.ini' % TEMPPATH 
+ini_sett = '%s\\Gzs\\Settings.ini' % TEMPPATH
+xml_sett = '%s\\Gzs\\PesFoxShader.xml' % TEMPPATH
 
 
 pes_diff_bin_data, IDoldname = [] , []
@@ -61,12 +65,12 @@ def pes_diff_bin_imp(pes_diff_fname):
 		bpy.data.objects['eyeL'].location[1] = (eyes_posL[1]) - eyeL_origin[1]
 		bpy.data.objects['eyeL'].location[2] = (eyes_posL[0]) + eyeL_origin[2]
 
-		bpy.data.objects['eyeR'].scale[0] = eyes_size[0]
-		bpy.data.objects['eyeR'].scale[1] = eyes_size[1]
-		bpy.data.objects['eyeR'].scale[2] = eyes_size[2]
-		bpy.data.objects['eyeL'].scale[0] = eyes_size[0]
-		bpy.data.objects['eyeL'].scale[1] = eyes_size[1]
-		bpy.data.objects['eyeL'].scale[2] = eyes_size[2]
+		bpy.data.objects['eyeR'].scale[0] = eyes_size[0]*1.2
+		bpy.data.objects['eyeR'].scale[1] = eyes_size[1]*1.2
+		bpy.data.objects['eyeR'].scale[2] = eyes_size[2]*1.2
+		bpy.data.objects['eyeL'].scale[0] = eyes_size[0]*1.2
+		bpy.data.objects['eyeL'].scale[1] = eyes_size[1]*1.2
+		bpy.data.objects['eyeL'].scale[2] = eyes_size[2]*1.2
 		pes_diff_bin_data.append(eyes_size[0])
 
 	return 1
@@ -90,12 +94,12 @@ def pes_diff_bin_exp(pes_diff_fname):
 		ly = (bpy.data.objects['eyeL'].location[1] + eyeL_origin[1])
 		lz = (bpy.data.objects['eyeL'].location[2] - eyeL_origin[2])
 
-		bpy.data.objects['eyeR'].scale[0] = scn.eyes_size
-		bpy.data.objects['eyeR'].scale[1] = scn.eyes_size
-		bpy.data.objects['eyeR'].scale[2] = scn.eyes_size
-		bpy.data.objects['eyeL'].scale[0] = scn.eyes_size
-		bpy.data.objects['eyeL'].scale[1] = scn.eyes_size
-		bpy.data.objects['eyeL'].scale[2] = scn.eyes_size
+		bpy.data.objects['eyeR'].scale[0] = scn.eyes_size*1.2
+		bpy.data.objects['eyeR'].scale[1] = scn.eyes_size*1.2
+		bpy.data.objects['eyeR'].scale[2] = scn.eyes_size*1.2
+		bpy.data.objects['eyeL'].scale[0] = scn.eyes_size*1.2
+		bpy.data.objects['eyeL'].scale[1] = scn.eyes_size*1.2
+		bpy.data.objects['eyeL'].scale[2] = scn.eyes_size*1.2
 
 		pes_diff_data = open(pes_diff_fname, 'r+b')
 		#Writing eye size
@@ -146,11 +150,11 @@ def convert_dds(ftexfilepath):
 
 def texture_covert(dirPath):
 	for root, directories, filenames in os.walk(dirPath):
-		for fileName  in filenames:
+		for fileName in filenames:
 			filename, extension = os.path.splitext(fileName)
 			if extension.lower() == '.dds':
 				ddsPath = os.path.join(root, filename + extension)
-				texconv(ddsPath, root, " -r -y -alpha -f BC7_UNORM -dx10 -ft dds -o ", False)
+				texconv(ddsPath, root, " -r -y -f BC7_UNORM -dx10 -ft dds -o ", False)
 				convert_dds(ddsPath)
 
 	return root, directories, filenames
@@ -166,7 +170,7 @@ def texture_load(dirPath):
 					Ftex.ftexToDds(ftexPath, ddsPath)
 				except:
 					convert_ftex(ftexPath)
-				texconv(ddsPath, dirPath, " -r -y -alpha -f DXT5 -ft dds -o ", True)
+				texconv(ddsPath, dirPath, " -r -y -f DXT5 -ft dds -o ", True)
 				
 	return root, directories, filenames
 
@@ -229,7 +233,6 @@ def defaultEnum(self):
 	return 1
 
 
-
 def importFmdlfile(fileName, sklname, meshID, objName):
 	context = bpy.context
 
@@ -259,6 +262,7 @@ def importFmdlfile(fileName, sklname, meshID, objName):
 	rootObject.fmdl_export_extensions_enabled = importSettings.enableExtensions
 	rootObject.fmdl_export_loop_preservation = importSettings.enableVertexLoopPreservation
 	rootObject.fmdl_export_mesh_splitting = importSettings.enableMeshSplitting
+
 
 	return 1
 
@@ -377,6 +381,10 @@ class FMDL_Scene_Extract_Fpk(bpy.types.Operator, bpy_extras.io_utils.ImportHelpe
 	filename_ext = "face.fpk"
 	filter_glob = bpy.props.StringProperty(default="face.fpk", options={'HIDDEN'})
 
+	@classmethod
+	def poll(cls, context):
+		return context.mode == "OBJECT"
+
 	config.read(ini_sett)
 	def invoke(self, context, event):
 		if context.scene.face_cnf == False:
@@ -457,11 +465,97 @@ class FMDL_Scene_Extract_Fpk(bpy.types.Operator, bpy_extras.io_utils.ImportHelpe
 				self.report({"WARNING"}, "Oral Already Imported!!")
 		if self.pes_diff_bin:
 			pes_diff_bin_imp(pes_diff_fname)
+			try:
+				for meshname in ('mesh_id_face_1', 'mesh_id_face_3', 'mesh_id_face_5', 'mesh_id_face_6'):
+					if not bpy.data.objects[meshname].hide:
+						bpy.data.objects[meshname].hide = True
+				if bpy.data.scenes['Scene'] is not None:
+					bpy.data.scenes['Scene'].layers[10] = True
+			except:
+				pass
+
 			print("pes_diff.bin imported succesfully!")
 		self.report({"INFO"}, "Extract Face.fpk succesfully!")
 		return {'FINISHED'}
-		
 
+
+class FMDL_Scene_Open_Image(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
+	"""Open a Image Texture"""
+	bl_idname = "open.image"
+	bl_label = "Open Image Texture"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	
+	import_label = "Open Image Texture"
+	
+	filename_ext = "*.dds;*.ftex"
+	filter_glob = bpy.props.StringProperty(default=filename_ext, options={'HIDDEN'})
+
+	
+	def execute(self, context):
+
+		filePath = self.filepath
+		fileName = str(filePath).split('..')[0].split('\\')[-1:][0]
+		dirpath = os.path.dirname(filePath)
+
+		filenames, extension = os.path.splitext(fileName)
+		if extension.lower() == '.ftex':
+			fileName = filenames + '.dds'
+			DDSPath = os.path.join(dirpath, fileName)
+			try:
+				Ftex.ftexToDds(filePath, DDSPath)
+			except:
+				convert_ftex(filePath)
+			texconv(DDSPath, dirpath, " -r -y -f DXT5 -ft dds -o ", True)
+			filePath = DDSPath
+		image = bpy.data.images.new(name=fileName, width=1024, height=1024, alpha=True,float_buffer=False)
+		image.source = 'FILE'
+		image.filepath=filePath
+
+		mesh=bpy.context.scene.objects.active.data
+		uvdata = str()
+
+		texName=bpy.context.active_object.active_material.active_texture.name
+		texture_role = bpy.data.textures[texName].fmdl_texture_role
+		idx = bpy.context.object.active_material.active_texture_index
+		
+		if texture_role == str():
+			self.report({"WARNING"}, "Need set shader first!!")
+			return {'CANCELLED'}
+		
+		if mesh.uv_textures.active_index == -1:
+			self.report({"WARNING"}, "Need create UVMap first!!")
+			return {'CANCELLED'}
+
+		if mesh.uv_textures.active_index == idx:
+			uvdata = mesh.uv_textures[idx].data
+
+		bpy.context.active_object.active_material.active_texture.name = "[%s] %s" % (texture_role, fileName)
+		texname=bpy.context.active_object.active_material.active_texture.name
+		bpy.data.textures[texname].fmdl_texture_filename = fileName
+
+		for face in uvdata:
+			face.image=image
+			image.reload()
+
+		imageTexture = bpy.data.textures[texname]
+		imageTexture.image = image
+		imageTexture.use_alpha = True
+
+
+		if '_SRGB' in texture_role:
+			image.colorspace_settings.name = 'sRGB'
+		elif '_LIN' in texture_role:
+			image.colorspace_settings.name = 'Linear'
+		else:
+			image.colorspace_settings.name = 'Non-Color'
+
+		if '_NRM' in texture_role:
+			imageTexture.use_normal_map = True
+
+		self.report({"INFO"}, "Add texture [%s] succesfully!" % fileName)
+		return {'FINISHED'}
+		
 
 def updateSummaries(scene):
 	textNames = set()
@@ -1066,6 +1160,24 @@ class FMDL_Material_Parameter_Name_List(bpy.types.UIList):
 		row.alignment = 'EXPAND'
 		row.prop(item, 'name', text="", emboss=False)
 
+def update_shader_list(self, context):
+	try:
+		self.fox_shader = self.fmdl_material_shader
+	except:
+		pass
+
+def update_eye_size(self, context):
+	if len(pes_diff_bin_data) != 0:
+		try:
+			bpy.data.objects['eyeR'].scale[0] = self.eyes_size*1.2
+			bpy.data.objects['eyeR'].scale[1] = self.eyes_size*1.2
+			bpy.data.objects['eyeR'].scale[2] = self.eyes_size*1.2
+			bpy.data.objects['eyeL'].scale[0] = self.eyes_size*1.2
+			bpy.data.objects['eyeL'].scale[1] = self.eyes_size*1.2
+			bpy.data.objects['eyeL'].scale[2] = self.eyes_size*1.2
+		except:
+			pass
+
 
 class FMDL_Material_Panel(bpy.types.Panel):
 	bl_label = "FMDL Material Settings"
@@ -1079,13 +1191,20 @@ class FMDL_Material_Panel(bpy.types.Panel):
 
 	def draw(self, context):
 		material = context.material
-
-		mainColumn = self.layout.column(align=True)
+		layout = self.layout
+		mainColumn = layout.column(align=True)
+		box = layout.box()
+		mainColumn = box.row(align=0)
+		mainColumn.prop(material, "fox_shader", text="PES Fox Shader")
+		mainColumn.operator("primary.operator", text="", icon="SEQ_SEQUENCER").face_opname = "set_shader"
+		mainColumn = box.row(align=0)
 		mainColumn.prop(material, "fmdl_material_shader")
+		mainColumn = box.row(align=0)
 		mainColumn.prop(material, "fmdl_material_technique")
-
+		mainColumn = box.row(align=0)
 		mainColumn.separator()
 		mainColumn.label("Material Parameters")
+		mainColumn = box.row(align=0)
 		parameterListRow = mainColumn.row()
 		parameterListRow.template_list(
 			FMDL_Material_Parameter_Name_List.__name__,
@@ -1102,12 +1221,12 @@ class FMDL_Material_Panel(bpy.types.Panel):
 		listButtonColumn.separator()
 		listButtonColumn.operator("fmdl.material_parameter_moveup", icon='TRIA_UP', text="")
 		listButtonColumn.operator("fmdl.material_parameter_movedown", icon='TRIA_DOWN', text="")
-
+		mainColumn = box.row(align=0)
 		if 0 <= material.fmdl_material_parameter_active < len(material.fmdl_material_parameters):
 			valuesColumn = mainColumn.column()
 			parameter = material.fmdl_material_parameter_active
 			valuesColumn.prop(
-				material.fmdl_material_parameters[material.fmdl_material_parameter_active],
+				material.fmdl_material_parameters[parameter],
 				"parameters"
 			)
 
@@ -1126,6 +1245,11 @@ class FMDL_Texture_Load_Ftex(bpy.types.Operator):
 				texture.image != None and
 				texture.image.filepath.lower().endswith('.ftex')
 		)
+	def draw(self, context):
+		texture = context.texture
+
+		mainColumn = self.layout.column()
+		mainColumn.prop(texture, "open_image", text="Texture Path")
 
 	def execute(self, context):
 		# Avoids a blender bug in which an invalid image can't be replaced with a valid one
@@ -1149,20 +1273,308 @@ class FMDL_Texture_Panel(bpy.types.Panel):
 		return context.texture != None
 
 	def draw(self, context):
+		row = self.layout.row()
+		box = self.layout.box()
+		box.alignment = 'CENTER'
 		texture = context.texture
+		row = box.row(align=0)
+		row.label(text="Image File")
+		row .operator(FMDL_Scene_Open_Image.bl_idname, icon="FILESEL")
+		row = box.row(align=0)
+		row.prop(texture, "fmdl_texture_role", text="Role")
+		row = box.row(align=0)
+		row.prop(texture, "fmdl_texture_filename", text="Filename")
+		row = box.row(align=0)
+		row.prop(texture, "fmdl_texture_directory", text="Directory")
 
-		mainColumn = self.layout.column()
-		mainColumn.prop(texture, "fmdl_texture_role", text="Role")
-		mainColumn.prop(texture, "fmdl_texture_filename", text="Filename")
-		mainColumn.prop(texture, "fmdl_texture_directory", text="Directory")
+
+	def execute(self, context):
+		# Avoids a blender bug in which an invalid image can't be replaced with a valid one
+		context.texture.image_user.use_auto_refresh = context.texture.image_user.use_auto_refresh
+
+		return {'FINISHED'}
 
 
 class FMDL_MaterialParameter(bpy.types.PropertyGroup):
 	name = bpy.props.StringProperty(name="Parameter Name")
 	parameters = bpy.props.FloatVectorProperty(name="Parameter Values", size=4, default=[0.0, 0.0, 0.0, 0.0])
 
-
 vertexGroupSummaryCache = {}
+
+def pesBoneList(skeletonType):
+	parts = skeletonType.split('_', 1)
+	if len(parts) != 2:
+		return None
+	pesVersion = parts[0]
+	bodyPart = parts[1]
+	if pesVersion not in PesSkeletonData.skeletonBones:
+		return None
+	if bodyPart not in PesSkeletonData.skeletonBones[pesVersion]:
+		return None
+	return PesSkeletonData.skeletonBones[pesVersion][bodyPart]
+
+def armatureIsPesSkeleton(armature, skeletonType):
+	boneNames = pesBoneList(skeletonType)
+	if boneNames is None:
+		return False
+	boneNames = set(boneNames)
+	
+	if armature.is_editmode:
+		blenderBoneNames = [bone.name for bone in armature.edit_bones]
+	else:
+		blenderBoneNames = [bone.name for bone in armature.bones]
+	for boneName in blenderBoneNames:
+		if boneName not in boneNames:
+			return False
+	return True
+
+def FMDL_Scene_Skeleton_update_type(scene, context):
+	newType = scene.fmdl_skeleton_type
+	for object in scene.objects:
+		if object.type == 'ARMATURE':
+			if object.fmdl_skeleton_replace_type != newType:
+				object.fmdl_skeleton_replace = armatureIsPesSkeleton(object.data, newType)
+				object.fmdl_skeleton_replace_type = newType
+
+def FMDL_Scene_Skeleton_get_replace(armatureObject):
+	skeletonType = bpy.context.scene.fmdl_skeleton_type
+	if (
+		   'fmdl_skeleton_replace' not in armatureObject
+		or 'fmdl_skeleton_replace_type' not in armatureObject
+		or armatureObject.fmdl_skeleton_replace_type != skeletonType
+	):
+		return armatureIsPesSkeleton(armatureObject.data, bpy.context.scene.fmdl_skeleton_type)
+	return armatureObject.fmdl_skeleton_replace
+
+def FMDL_Scene_Skeleton_set_replace(armatureObject, enabled):
+	armatureObject.fmdl_skeleton_replace_type = bpy.context.scene.fmdl_skeleton_type
+	armatureObject.fmdl_skeleton_replace = enabled
+
+class FMDL_Scene_Skeleton_List(bpy.types.UIList):
+	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+		row = layout.row(align = True)
+		row.prop(item, 'fmdl_skeleton_replace_effective', text = '')
+		row.label(text = FMDL_Scene_Skeleton_List.objectName(item))
+	
+	def filter_items(self, context, data, propname):
+		filterList = []
+		names = {}
+		
+		for blenderObject in data.objects:
+			if blenderObject.type == 'ARMATURE':
+				filterList.append(self.bitflag_filter_item)
+				names[blenderObject] = FMDL_Scene_Skeleton_List.objectName(blenderObject)
+			else:
+				filterList.append(0)
+		
+		indices = {}
+		for name in sorted(list(names.values())):
+			indices[name] = len(indices)
+		
+		sortList = []
+		for blenderObject in data.objects:
+			if blenderObject in names:
+				sortList.append(indices[names[blenderObject]])
+			else:
+				sortList.append(-1)
+		
+		return (filterList, sortList)
+	
+	def objectName(blenderObject):
+		if blenderObject.parent is None:
+			return blenderObject.name
+		else:
+			return "%s :: %s" % (FMDL_Scene_Skeleton_List.objectName(blenderObject.parent), blenderObject.name)
+
+def addBone(blenderArmature, bone, boneIDs, bonesByName):
+	if bone in boneIDs:
+		return boneIDs[bone]
+	
+	useConnect = False
+	if bone.name in PesSkeletonData.bones:
+		pesBone = PesSkeletonData.bones[bone.name]
+		(headX, headY, headZ) = pesBone.startPosition
+		(tailX, tailY, tailZ) = pesBone.endPosition
+		head = (headX, -headZ, headY)
+		tail = (tailX, -tailZ, tailY)
+		parentBoneName = pesBone.renderParent
+		while parentBoneName is not None and parentBoneName not in bonesByName:
+			parentBoneName = PesSkeletonData.bones[parentBoneName].renderParent
+		if parentBoneName is None:
+			parentBone = None
+		else:
+			parentBone = bonesByName[parentBoneName]
+			parentDistanceSquared = sum(((PesSkeletonData.bones[parentBoneName].endPosition[i] - pesBone.startPosition[i]) ** 2 for i in range(3)))
+			if parentBoneName == pesBone.renderParent and parentDistanceSquared < 0.0000000001:
+				useConnect = True
+	else:
+		tail = (bone.globalPosition.x, -bone.globalPosition.z, bone.globalPosition.y)
+		head = (bone.localPosition.x, -bone.localPosition.z, bone.localPosition.y)
+		parentBone = bone.parent
+	
+	if parentBone != None:
+		parentBoneID = addBone(blenderArmature, parentBone, boneIDs, bonesByName)
+	else:
+		parentBoneID = None
+	
+	if sum(((tail[i] - head[i]) ** 2 for i in range(3))) < 0.0000000001:
+		tail = (head[0], head[1], head[2] - 0.00001)
+	
+	blenderEditBone = blenderArmature.edit_bones.new(bone.name)
+	boneID = blenderEditBone.name
+	boneIDs[bone] = boneID
+	
+	blenderEditBone.head = head
+	blenderEditBone.tail = tail
+	blenderEditBone.hide = False
+	if parentBoneID != None:
+		blenderEditBone.parent = blenderArmature.edit_bones[parentBoneID]
+		blenderEditBone.use_connect = useConnect
+	
+	return boneID
+
+def createPesBone(blenderArmature, boneName, boneNames):
+	if boneName not in PesSkeletonData.bones:
+		return
+	if boneName in blenderArmature.edit_bones:
+		return
+	
+	pesBone = PesSkeletonData.bones[boneName]
+	parentBoneName = pesBone.renderParent
+	while parentBoneName is not None and parentBoneName not in boneNames:
+		parentBoneName = PesSkeletonData.bones[parentBoneName].renderParent
+	if parentBoneName is not None:
+		parentDistanceSquared = sum(((PesSkeletonData.bones[parentBoneName].endPosition[i] - pesBone.startPosition[i]) ** 2 for i in range(3)))
+		useConnect = (parentBoneName == pesBone.renderParent and parentDistanceSquared < 0.0000000001)
+		createPesBone(blenderArmature, parentBoneName, boneNames)
+	
+	(headX, headY, headZ) = pesBone.startPosition
+	(tailX, tailY, tailZ) = pesBone.endPosition
+	head = (headX, -headZ, headY)
+	tail = (tailX, -tailZ, tailY)
+	if sum(((tail[i] - head[i]) ** 2 for i in range(3))) < 0.0000000001:
+		tail = (head[0], head[1], head[2] - 0.00001)
+	
+	blenderEditBone = blenderArmature.edit_bones.new(boneName)
+	blenderEditBone.head = head
+	blenderEditBone.tail = tail
+	blenderEditBone.hide = False
+	if parentBoneName is not None:
+		blenderEditBone.parent = blenderArmature.edit_bones[parentBoneName]
+		blenderEditBone.use_connect = useConnect
+
+def createPesSkeleton(context, skeletonType):
+	boneNames = pesBoneList(skeletonType)
+	
+	armatureName = "Skeleton"
+	for enumItem in bpy.types.Scene.bl_rna.properties['fmdl_skeleton_type'].enum_items:
+		if enumItem.identifier == skeletonType:
+			armatureName = enumItem.name
+			break
+	blenderArmature = bpy.data.armatures.new(armatureName)
+	blenderArmature.show_names = True
+	
+	blenderArmatureObject = bpy.data.objects.new(armatureName, blenderArmature)
+	armatureObjectID = blenderArmatureObject.name
+	
+	context.scene.objects.link(blenderArmatureObject)
+	context.scene.objects.active = blenderArmatureObject
+	bpy.ops.object.mode_set(context.copy(), mode = 'EDIT')
+	
+	boneIDs = {}
+	for boneName in boneNames:
+		createPesBone(blenderArmature, boneName, boneNames)
+	
+	bpy.ops.object.mode_set(context.copy(), mode = 'OBJECT')
+	context.scene.update()
+	return (armatureObjectID, armatureName)
+
+def replaceArmatures(context, armatureObjectID, preferredName):
+	remapList = []
+	for object in bpy.data.objects:
+		if (
+				object.type == 'ARMATURE'
+			and object.fmdl_skeleton_replace_effective
+			and object.name != armatureObjectID
+		):
+			remapList.append(object.name)
+	
+	parentObjectID = None
+	if len(remapList) == 1:
+		preferredName = remapList[0]
+		parent = bpy.data.objects[remapList[0]].parent
+		if parent is not None:
+			parentObjectID = parent.name
+	
+	for objectID in remapList:
+		oldArmatureObject = bpy.data.objects[objectID]
+		oldArmature = oldArmatureObject.data
+		
+		oldArmature.user_remap(bpy.data.objects[armatureObjectID].data)
+		bpy.data.armatures.remove(oldArmature)
+		
+		context.scene.objects.unlink(oldArmatureObject)
+		oldArmatureObject.user_remap(bpy.data.objects[armatureObjectID])
+		bpy.data.objects.remove(oldArmatureObject)
+	if parentObjectID is not None:
+		bpy.data.objects[armatureObjectID].parent = bpy.data.objects[parentObjectID]
+	bpy.data.objects[armatureObjectID].name = preferredName
+	context.scene.update()
+
+class FMDL_Scene_Skeleton_Create(bpy.types.Operator):
+	"""Create PES skeleton"""
+	bl_idname = "fmdl.skeleton_create"
+	bl_label = "Create Skeleton"
+	bl_options = {'REGISTER', 'UNDO'}
+	
+	@classmethod
+	def poll(cls, context):
+		return context.mode == 'OBJECT'
+	
+	def execute(self, context):
+		createPesSkeleton(context, context.scene.fmdl_skeleton_type)
+		return {'FINISHED'}
+
+class FMDL_Scene_Skeleton_CreateReplace(bpy.types.Operator):
+	"""Create PES skeleton and replace existing"""
+	bl_idname = "fmdl.skeleton_create_replace"
+	bl_label = "Create and replace existing:"
+	bl_options = {'REGISTER', 'UNDO'}
+	
+	@classmethod
+	def poll(cls, context):
+		return context.mode == 'OBJECT'
+	
+	def execute(self, context):
+		(newArmatureObjectID, preferredName) = createPesSkeleton(context, context.scene.fmdl_skeleton_type)
+		replaceArmatures(context, newArmatureObjectID, preferredName)
+		return {'FINISHED'}
+
+class FMDL_Scene_Skeleton_Panel(bpy.types.Panel):
+	bl_label = "FMDL Skeleton"
+	bl_space_type = "VIEW_3D"
+	bl_region_type = "TOOLS"
+	bl_context = "objectmode"
+	bl_category = "Tools"
+	
+	@classmethod
+	def poll(cls, context):
+		return context.scene != None
+	
+	def draw(self, context):
+		scene = context.scene
+		self.layout.prop(scene, 'fmdl_skeleton_type', text = "Skeleton Type")
+		self.layout.operator(FMDL_Scene_Skeleton_Create.bl_idname)
+		self.layout.operator(FMDL_Scene_Skeleton_CreateReplace.bl_idname)
+		self.layout.template_list(
+			FMDL_Scene_Skeleton_List.__name__,
+			"FMDL_Scene_Skeleton",
+			scene,
+			"objects",
+			scene,
+			"fmdl_skeleton_replace_active",
+			rows = 5
+		)
 
 
 class Fmdl_UIPanel(bpy.types.Panel):
@@ -1181,7 +1593,6 @@ class Fmdl_UIPanel(bpy.types.Panel):
 	bpy.types.Scene.face_cnf = BoolProperty(name="", default=True)
 	bpy.types.Scene.hair_cnf = BoolProperty(name="", default=True)
 	bpy.types.Scene.convertftex = BoolProperty(name="",description="Convert texture dds file to ftex when you Create .FPK File.", default=False)
-	bpy.types.Scene.eyes_size = FloatProperty(name="", min=0.5, max=1.5, default=1.03)
 	bpy.types.Scene.oldid = StringProperty(name="",  default="0000")
 	bpy.types.Scene.newid = StringProperty(name="",  default="0000")
 	extensions_enabled = bpy.props.BoolProperty(name="Enable PES FMDL extensions", default=True)
@@ -1190,7 +1601,8 @@ class Fmdl_UIPanel(bpy.types.Panel):
 	load_textures = bpy.props.BoolProperty(name="Load textures", default=True)
 	import_all_bounding_boxes = bpy.props.BoolProperty(name="Import all bounding boxes", default=False)
 
-	global facepath, hairpath, oralpath, packfpk, pes_diff_fname, pes_diff_lab
+	global facepath, hairpath, oralpath, packfpk, pes_diff_fname
+	
 
 	def draw(self, context):
 		layout = self.layout
@@ -1206,7 +1618,7 @@ class Fmdl_UIPanel(bpy.types.Panel):
 		row = box.row()
 		row.label(text="Made by: the4chancup - MjTs-140914", icon="INFO")
 		row = box.row()
-		row.label(text="Version: 1.93b", icon="INFO")
+		row.label(text="Version: 1.93.1b", icon="INFO")
 		row = box.row()
 		box.label(text="This Tool Works with Only Blender v2.79", icon="BLENDER")
 		row = box.row()
@@ -1231,7 +1643,6 @@ class Fmdl_UIPanel(bpy.types.Panel):
 		row = box.row(align=1)
 		row.label(text="FACE .FMDL File")
 
-		#box.prop(scn, "face_path", text="")
 		row = box.row(align=0)
 		if 'face_high' not in scn.face_path:
 			row.enabled = 0
@@ -1304,7 +1715,10 @@ class Fmdl_UIPanel(bpy.types.Panel):
 		if not os.path.isfile(oralpath) and os.path.isfile(facepath) and 'fmdl' in facepath:
 			row.label(text="Mouth set position now available!", icon="FILE_TICK")
 			row = box.row()
-		row.prop(scn, "eyes_size", text="Eye Size")
+
+		if context.mode != "OBJECT":
+			row.enabled = 0
+		row.prop(scn, "eyes_size")
 		row = box.row()
 		if not os.path.isfile(pes_diff_fname):
 			if not os.path.isfile(pes_diff_fname) and os.path.isfile(facepath) and 'fmdl' in facepath:
@@ -1498,6 +1912,12 @@ class Tool_Main_Operator(bpy.types.Operator):
 
 		if self.face_opname == "pes_diff_imp":
 			pes_diff_bin_imp(pes_diff_fname)
+			try:
+				for meshname in ('mesh_id_face_1', 'mesh_id_face_3', 'mesh_id_face_5', 'mesh_id_face_6'):
+					bpy.data.objects[meshname].hide = True
+				bpy.data.scenes['Scene'].layers[10] = True
+			except:
+				pass
 			self.report({"INFO"}, "PES_DIFF.BIN Imported Succesfully!")
 			print("PES_DIFF.BIN Imported Succesfully!")
 			return {'FINISHED'}
@@ -1580,14 +2000,24 @@ class Tool_Main_Operator(bpy.types.Operator):
 		if self.face_opname == "set_default_enum":
 			defaultEnum(self)
 			return {'FINISHED'}
+
+		if self.face_opname == "set_shader":
+			PesFoxShader.setShader(self, context)
+			return {'FINISHED'}
 	pass
 
 
 classes = [
 
+	FMDL_Scene_Open_Image,
 	FMDL_Scene_Extract_Fpk,
 	FMDL_Scene_Panel_FMDL_Import_Settings,
 	FMDL_Scene_Panel_FMDL_Export_Settings,
+
+	FMDL_Scene_Skeleton_List,
+	FMDL_Scene_Skeleton_Create,
+	FMDL_Scene_Skeleton_CreateReplace,
+	FMDL_Scene_Skeleton_Panel,
 
 	FMDL_Mesh_BoneGroup_List,
 	FMDL_Mesh_BoneGroup_RemoveUnused,
@@ -1620,10 +2050,21 @@ classes = [
 	TiNA.FMDL_WrapNormals,
 	TiNA.FMDL_ClearNormals,
 
+
 ]
 
 
 def register():
+	skeletonTypes = []
+	for pesVersion in PesSkeletonData.skeletonBones:
+		for skeletonType in PesSkeletonData.skeletonBones[pesVersion]:
+			skeletonTypes.append(('%s_%s' % (pesVersion, skeletonType), '%s %s' % (pesVersion, skeletonType), '%s %s' % (pesVersion, skeletonType)))
+	skeletonTypes.reverse()
+	defaultPesVersion = list(PesSkeletonData.skeletonBones.keys())[-1]
+	defaultType = list(PesSkeletonData.skeletonBones[defaultPesVersion].keys())[0]
+	defaultSkeletonType = '%s_%s' % (defaultPesVersion, defaultType)
+
+
 	bpy.types.Object.fmdl_file = bpy.props.BoolProperty(name="Is FMDL file", options={'SKIP_SAVE'})
 	bpy.types.Object.fmdl_filename = bpy.props.StringProperty(name="FMDL filename", options={'SKIP_SAVE'})
 	bpy.types.Material.fmdl_material_parameter_active = bpy.props.IntProperty(name="FMDL_Material_Parameter_Name_List index", default=-1, options={'SKIP_SAVE'})
@@ -1638,11 +2079,31 @@ def register():
 	bpy.types.Scene.fixmeshesmooth = bpy.props.BoolProperty(name="FIX-Smooth Meshes", default=True)
 
 
+	bpy.types.Scene.fmdl_skeleton_type = bpy.props.EnumProperty(name = "Skeleton type",
+		items = skeletonTypes,
+		default = defaultSkeletonType,
+		update = FMDL_Scene_Skeleton_update_type,
+		options = {'SKIP_SAVE'}
+	)
+	bpy.types.Object.fmdl_skeleton_replace = bpy.props.BoolProperty(name = "Replace skeleton", default = False, options = {'SKIP_SAVE'})
+	bpy.types.Object.fmdl_skeleton_replace_type = bpy.props.EnumProperty(name = "Skeleton replacement target", items = skeletonTypes, options = {'SKIP_SAVE'})
+	bpy.types.Object.fmdl_skeleton_replace_effective = bpy.props.BoolProperty(name = "Replace skeleton",
+		get = FMDL_Scene_Skeleton_get_replace,
+		set = FMDL_Scene_Skeleton_set_replace,
+		options = {'SKIP_SAVE'}
+	)
+	bpy.types.Scene.fmdl_skeleton_replace_active = bpy.props.IntProperty(name = "FMDL_Scene_Skeleton_List index", default = -1, options = {'SKIP_SAVE'})
+	bpy.types.Bone.fmdl_bone_in_active_mesh = bpy.props.BoolProperty(name = "Enabled",
+		get = FMDL_Mesh_BoneGroup_Bone_get_enabled,
+		set = FMDL_Mesh_BoneGroup_Bone_set_enabled,
+		options = {'SKIP_SAVE'}
+	)
+
 	bpy.types.Scene.import_face_high = bpy.props.BoolProperty(name = "Import face_high.fmdl", default = True)
 	bpy.types.Scene.import_hair_high = bpy.props.BoolProperty(name = "Import hair_high.fmdl", default = True)
 	bpy.types.Scene.import_oral = bpy.props.BoolProperty(name = "Import oral.fmdl", default = True)
-	bpy.types.Scene.import_pes_diff = bpy.props.BoolProperty(name="Import face_diff.bin", default = True)
-	
+	bpy.types.Scene.import_pes_diff = bpy.props.BoolProperty(name="Import face_diff.bin", default=True)
+	bpy.types.Scene.eyes_size = bpy.props.FloatProperty(name="Eye Size", default=1.0, min=0.5, max=2.0, update=update_eye_size)
 
 	for c in classes:
 		bpy.utils.register_class(c)
@@ -1652,7 +2113,8 @@ def register():
 	bpy.types.Mesh.fmdl_alpha_enum = bpy.props.IntProperty(name="Alpha Enum", default=0, min=0, max=255)
 	bpy.types.Mesh.fmdl_shadow_enum = bpy.props.IntProperty(name="Shadow Enum", default=0, min=0, max=255)
 
-	bpy.types.Material.fmdl_material_shader = bpy.props.StringProperty(name="Shader")
+	bpy.types.Material.fox_shader = bpy.props.EnumProperty(name="Select Fox Shader", items=PesFoxShader.ShaderList, default="pes_3ddf_skin_face")
+	bpy.types.Material.fmdl_material_shader = bpy.props.StringProperty(name="Shader", default="pes_3ddf_skin_face", update=update_shader_list)
 	bpy.types.Material.fmdl_material_technique = bpy.props.StringProperty(name="Technique")
 	bpy.types.Material.fmdl_material_parameters = bpy.props.CollectionProperty(name="Material Parameters", type=FMDL_MaterialParameter)
 	bpy.types.Texture.fmdl_texture_filename = bpy.props.StringProperty(name="Texture Filename")
@@ -1665,7 +2127,8 @@ def register():
 	bpy.types.Mesh.fmdl_lock_nonempty_vertex_groups = bpy.props.BoolProperty(name = "Lock in-use bone groups", default = True, options = {'SKIP_SAVE'})
 	bpy.types.Mesh.fmdl_show_vertex_group_vertices = bpy.props.BoolProperty(name = "Show vertices [v]", default = True, options = {'SKIP_SAVE'})
 	bpy.types.Mesh.fmdl_show_vertex_group_weights = bpy.props.BoolProperty(name = "Show weights [w]", default = True, options = {'SKIP_SAVE'})
-	bpy.types.Material.fmdl_material_parameter_active = bpy.props.IntProperty(name = "FMDL_Material_Parameter_Name_List index", default = -1, options = {'SKIP_SAVE'})
+	bpy.types.Material.fmdl_material_parameter_active = bpy.props.IntProperty(name="FMDL_Material_Parameter_Name_List index", default=-1, options={'SKIP_SAVE'})
+
 
 
 def unregister():
