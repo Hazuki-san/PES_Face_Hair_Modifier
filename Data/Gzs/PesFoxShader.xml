@@ -1,3 +1,20 @@
+<!-- Shader collection for PES 
+
+You can add this shader yourself, follow the example below
+
+Don't forget to also add a ShaderList to PesFoxShader.py so that the shader is read by Blender
+
+These are just a few examples ShaderList in PesFoxShader.py
+
+
+			Format: 'Shader', 'Shader', 'Technique'
+ShaderList = [('pes_3ddf_skin_face', 'pes_3ddf_skin_face', 'pes3DDF_Skin_Face')]
+
+
+These are some of the original shaders from KONAMI: https://pastebin.com/raw/Cpz6bvW6
+
+-->
+
 <FoxShader>
 	<FoxShader shader="pes_3ddf_skin_face">
 		<Parameter technique="pes3DDF_Skin_Face"/>
