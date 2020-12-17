@@ -897,13 +897,13 @@ def exportFmdl(context, rootObjectName, exportSettings = None):
 		vertexFields = FmdlFile.FmdlFile.VertexFields()
 		vertexFields.hasNormal = True
 		vertexFields.hasTangent = True
-		
+
 		if len(blenderMesh.vertex_colors) == 0:
 			colorLayer = None
 			vertexFields.hasColor = False
 		elif len(blenderMesh.vertex_colors) == 1:
-			colorLayer = 0
-			vertexFields.hasColor = True
+			colorLayer = None
+			vertexFields.hasColor = False
 		elif len(blenderMesh.vertex_colors) == 2:
 			colorLayer = 1
 			vertexFields.hasColor = True

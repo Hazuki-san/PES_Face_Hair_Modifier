@@ -1,4 +1,4 @@
-import bpy, os, fnmatch, binascii, bmesh, shutil, os.path, struct, bpy.props, bpy_extras.io_utils, re, pathlib
+import bpy, os, fnmatch, binascii, bmesh, shutil, os.path, struct, bpy.props, bpy_extras.io_utils, re, subprocess
 from struct import *
 from bpy.props import *
 from Data import FmdlFile, Ftex, IO, PesSkeletonData, TiNA, PesFoxShader
@@ -29,7 +29,6 @@ FtexTools ='"%s\\Gzs\\FtexTools.exe"' % TEMPPATH
 texconvTools = '"%s\\Gzs\\texconv.exe"' % TEMPPATH 
 ini_sett = '%s\\Gzs\\Settings.ini' % TEMPPATH
 xml_sett = '%s\\Gzs\\PesFoxShader.xml' % TEMPPATH
-
 
 pes_diff_bin_data, IDoldname = [] , []
 eyeL_origin, eyeR_origin, mouth_origin = [0.02807705,0.1448301,1.69668636147], [0.02754705,0.1446231,1.69682636147], [-0.000365,0.1479722561,1.63275]
@@ -378,7 +377,7 @@ class FMDL_Scene_Extract_Fpk(bpy.types.Operator, bpy_extras.io_utils.ImportHelpe
 	
 	import_label = "PES FPK (.fpk)"
 	
-	filename_ext = "face.fpk"
+	filename_ext = ""
 	filter_glob = bpy.props.StringProperty(default="face.fpk", options={'HIDDEN'})
 
 	@classmethod
@@ -488,8 +487,8 @@ class FMDL_Scene_Open_Image(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
 	
 	import_label = "Open Image Texture"
 	
-	filename_ext = "*.dds;*.ftex"
-	filter_glob = bpy.props.StringProperty(default=filename_ext, options={'HIDDEN'})
+	filename_ext = ""
+	filter_glob = bpy.props.StringProperty(default="*.dds;*.ftex", options={'HIDDEN'})
 
 	
 	def execute(self, context):
@@ -1279,7 +1278,8 @@ class FMDL_Texture_Panel(bpy.types.Panel):
 		texture = context.texture
 		row = box.row(align=0)
 		row.label(text="Image File")
-		row .operator(FMDL_Scene_Open_Image.bl_idname, icon="FILESEL")
+		row.operator(FMDL_Scene_Open_Image.bl_idname, icon="FILESEL")
+		row.operator("primary.operator", text="", icon="STRANDS").face_opname = "edit_texture"
 		row = box.row(align=0)
 		row.prop(texture, "fmdl_texture_role", text="Role")
 		row = box.row(align=0)
@@ -2003,6 +2003,24 @@ class Tool_Main_Operator(bpy.types.Operator):
 
 		if self.face_opname == "set_shader":
 			PesFoxShader.setShader(self, context)
+			return {'FINISHED'}
+
+		if self.face_opname == "edit_texture":
+			texname = bpy.context.active_object.active_material.active_texture.name
+			fileName = str()
+			imagePath = str()
+			try:
+				fileName = str(texname).split()[1]
+				imagePath = bpy.data.images[fileName].filepath
+			except:
+				pass
+			if os.path.isfile(imagePath):
+				bpy.ops.image.external_edit(filepath=imagePath)
+				pass
+			else:
+				self.report({"WARNING"}, "File not found!!")
+				return {'CANCELLED'}
+			
 			return {'FINISHED'}
 	pass
 
