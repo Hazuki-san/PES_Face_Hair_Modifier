@@ -1,4 +1,4 @@
-import bpy, os, fnmatch, binascii, bmesh, shutil, os.path, struct, bpy.props, bpy_extras.io_utils, re, subprocess
+import bpy, os, fnmatch, binascii, bmesh, shutil, os.path, struct, bpy.props, bpy_extras.io_utils, re
 from struct import *
 from bpy.props import *
 from Data import FmdlFile, Ftex, IO, PesSkeletonData, TiNA, PesFoxShader
