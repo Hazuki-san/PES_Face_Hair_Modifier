@@ -23,6 +23,8 @@ This tool is *heavily* based on the
 
 To install, simply download the Zip file from the current release.
 
+* Download the addon based on the blender version you are using 2.79 or 2.8x.
+
 * ***copy-paste "PES_Face_Hair_Modifier.py" and "Data" to "C:\Users\\[username]\AppData\Roaming\Blender Foundation\Blender\2.79\scripts\addons"***
 * ***copy-paste "config" to "C:\Users\\[username]\AppData\Roaming\Blender Foundation\Blender\2.79" replace and overwrite if needed.***
 
