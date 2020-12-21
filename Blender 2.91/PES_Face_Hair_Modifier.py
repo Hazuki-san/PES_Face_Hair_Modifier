@@ -534,8 +534,6 @@ class FMDL_Scene_Open_Image(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
 		bpy.data.materials[mat_name].node_tree.nodes[node_name].image.alpha_mode = 'NONE'
 		bpy.data.materials[mat_name].node_tree.nodes[node_name].fmdl_texture_filename = fileName
 		bpy.data.materials[mat_name].node_tree.nodes[node_name].label = fileName
-		tex = context.texture_slot
-		print(tex)
 		
 		self.report({"INFO"}, "Add texture [%s] succesfully!" % fileName)
 		return {'FINISHED'}
