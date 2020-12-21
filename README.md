@@ -1,6 +1,6 @@
 # PES_Face_Hair_Modifier 
 
-PES_Face_Hair_Modifier  is a [Blender 2.79](https://www.blender.org/) plugin that allows Facemaker to edit Faces and Hair files.
+PES_Face_Hair_Modifier  is a [Blender 2.79] and [Blender 2.8x] (https://www.blender.org/) plugin that allows Facemaker to edit Faces and Hair files.
 
 This tool is *heavily* based on the 
 
