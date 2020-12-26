@@ -136,7 +136,10 @@ def importFmdl(context, fmdl, filename, importSettings = None):
 		if identifier in textureIDs:
 			blenderTexture = bpy.data.textures[textureIDs[identifier]]
 		else:
-			blenderImage = bpy.data.images.new(texture.filename, width=0, height=0)
+			if texture.filename in bpy.data.images:
+				blenderImage = bpy.data.images[texture.filename]
+			else:
+				blenderImage = bpy.data.images.new(texture.filename, width=0, height=0)
 			blenderImage.source = 'FILE'
 
 			if '_SRGB' in textureRole:

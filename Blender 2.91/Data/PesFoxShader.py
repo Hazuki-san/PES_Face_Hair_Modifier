@@ -18,8 +18,42 @@ ShaderList = [('pes_3ddf_skin_face', 'pes_3ddf_skin_face', 'pes3DDF_Skin_Face'),
 			('pes_3dfw_eyeocclusion', 'pes_3dfw_eyeocclusion', 'pes3DFW_EyeOcclusion'),
 			('fox_3ddf_ggx_nrmuv', 'fox_3ddf_ggx_nrmuv', 'fox3DDF_GGX'),
 			('pes_3dfw_glass2', 'pes_3dfw_glass2', 'pes3DFW_Glass2'),
+			('pes_3dfw_glass3', 'pes_3dfw_glass3', 'pes3DFW_Glass3'),
 			('pes_3dfw_const_srgb_bill', 'pes_3dfw_const_srgb_bill', 'pes3DFW_Constant_SRGB_Bill')
 			   
+]
+
+AlphaEnum = [('Unknown', 'Unknown', 'Unknown'),
+			('0', 'No Alpha', 'No Alpha'),
+			('16', 'Glass', 'Glass'),
+			('17', 'Glass2', 'Glass2'),
+			('48', 'Glass3', 'Glass3'),
+			('49', 'Glass4', 'Glass4'),
+			('80', 'Decal', 'Decal'),
+			('81', 'Decal2', 'Decal2'),
+			('112', 'Eyelash', 'Eyelash'),
+			('113', 'Eyelash2', 'Eyelash2'),
+			('148', 'Parasite', 'Parasite'),
+			('140', 'Alpha2', 'Alpha2'),
+			('160', 'Alpha', 'Alpha'),
+			('192', 'Unknown OMBS', 'Unknown OMBS'),
+			('32', 'No backface culling', 'No backface culling')
+]
+ShadowEnum = [('Unknown', 'Unknown', 'Unknown'),
+			('0', 'Shadow', 'Shadow'),
+			('1', 'No Shadow', 'No Shadow'),
+			('2', 'Invisible Mesh Visible Shadow', 'Invisible Mesh Visible Shadow'),
+			('4', 'Tinted Glass', 'Tinted Glass'),
+			('5', 'Glass', 'Glass'),
+			('36', 'Light OMBS', 'Light OMBS'),
+			('37', 'Glass OMBS', 'Glass OMBS'),
+			('64', 'Shadow2', 'Shadow2'),
+			('65', 'No Shadow2', 'No Shadow2')
+]
+
+parent_list = [('MESH_face_high', 'MESH_face_high', 'Move selected object to MESH_face_high'),
+			('MESH_face_parts', 'MESH_face_parts', 'Move selected object to MESH_face_parts'),
+			('MESH_hair_high', 'MESH_hair_high', 'Move selected object to MESH_hair_high')
 ]
 
 def setShader(self, context):
@@ -29,12 +63,35 @@ def setShader(self, context):
 	parameter = material.fmdl_material_parameters.clear()
 	blenderMaterial = bpy.context.active_object.active_material
 	blenderMaterial.node_tree.nodes.clear()
+	new_group_node = blenderMaterial.node_tree.nodes.new('ShaderNodeGroup')
+	new_group_node.node_tree = bpy.data.node_groups['TRM Subsurface']
+	blenderMaterial.node_tree.nodes['Group'].name = 'TRM Subsurface'
+	new_group_node = blenderMaterial.node_tree.nodes.new('ShaderNodeGroup')
+	new_group_node.node_tree = bpy.data.node_groups['SRM Seperator']
+	blenderMaterial.node_tree.nodes['Group'].name = 'SRM Seperator'
+	new_group_node = blenderMaterial.node_tree.nodes.new('ShaderNodeGroup')
+	new_group_node.node_tree = bpy.data.node_groups['NRM Converter']
+	blenderMaterial.node_tree.nodes['Group'].name = 'NRM Converter'
 	blenderOutput = blenderMaterial.node_tree.nodes.new("ShaderNodeOutputMaterial")
 	blenderOutput.location = Vector((400, 200))
 	blenderShader = blenderMaterial.node_tree.nodes.new("ShaderNodeBsdfPrincipled")
 	blenderShader.location = Vector((0, 200))
+	principled = blenderMaterial.node_tree.nodes['Principled BSDF']
 	Material_Output = blenderMaterial.node_tree.nodes['Material Output']
+	Material_Output.location = Vector((300, 300))
 	blenderMaterial.node_tree.links.new(blenderShader.outputs['BSDF'], Material_Output.inputs['Surface'])
+	TRM_Subsurface = blenderMaterial.node_tree.nodes['TRM Subsurface']
+	TRM_Subsurface.location = Vector((-200, 200))
+	SRM_Seperator = blenderMaterial.node_tree.nodes['SRM Seperator']
+	SRM_Seperator.location = Vector((-200, 0))
+	NRM_Converter = blenderMaterial.node_tree.nodes['NRM Converter']
+	NRM_Converter.location = Vector((-200, -200))
+	blenderMaterial.node_tree.links.new(TRM_Subsurface.outputs['Subsurface'], principled.inputs['Subsurface'])
+	blenderMaterial.node_tree.links.new(TRM_Subsurface.outputs['Subsurface Color'], principled.inputs['Subsurface Color'])
+	blenderMaterial.node_tree.links.new(SRM_Seperator.outputs['Specular'], principled.inputs['Specular'])
+	blenderMaterial.node_tree.links.new(SRM_Seperator.outputs['Roughness'], principled.inputs['Roughness'])
+	blenderMaterial.node_tree.links.new(NRM_Converter.outputs['Normal'], principled.inputs['Normal'])
+
 	try:
 		for matname in bpy.data.materials:
 			try:
@@ -92,28 +149,49 @@ def setShader(self, context):
 								if 'real' in get_texture_directory:
 									blenderMaterial.node_tree.nodes['Image Texture'].fmdl_texture_directory = get_texture_directory
 
+							if 'pes3DDF_Skin_Face' in blenderMaterial.fmdl_material_technique:
+								blenderMaterial.use_sss_translucency = True
+							if 'pes3DDF_Hair' in blenderMaterial.fmdl_material_technique:
+								blenderMaterial.blend_method = 'HASHED'
+							elif 'pes3DDC_Adjust' in blenderMaterial.fmdl_material_technique:
+								blenderMaterial.blend_method = 'CLIP'
+								blenderMaterial.alpha_threshold = 1.0
+							elif 'fox3DDC_Blin' in blenderMaterial.fmdl_material_technique:
+								blenderMaterial.blend_method = 'BLEND'
+								blenderMaterial.show_transparent_back = True
+							elif 'fox3DDF_Blin_Translucent' in blenderMaterial.fmdl_material_technique:
+								blenderMaterial.blend_method = 'BLEND'
+								blenderMaterial.show_transparent_back = False
+							else:
+								blenderMaterial.blend_method = 'BLEND'
+								blenderMaterial.show_transparent_back = False
+								
 							blenderMaterial.node_tree.nodes['Image Texture'].name = textures
-							principled = blenderMaterial.node_tree.nodes['Principled BSDF']
-							
-							
 							blenderTexture.select = True
 							blenderMaterial.node_tree.nodes.active = blenderTexture
-						
-							if 'Base_Tex_' in textures:
+							textureRole = textures
+							if 'Base_Tex_SRGB' in textureRole or 'Base_Tex_LIN' in textureRole:
+								blenderTexture.location = Vector((-500, 560))
 								blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], principled.inputs['Base Color'])
-								blenderTexture.location = Vector((-300, 300))
-							elif 'NormalMap_Tex_' in textures:
-								blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], principled.inputs['Normal'])
-								blenderTexture.location = Vector((300, 0))
-							elif 'SpecularMap_Tex_' in textures:
-								blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], principled.inputs['Specular'])
-								blenderTexture.location = Vector((-300, 50))
-							elif 'RoughnessMap_Tex_' in textures:
-								blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], principled.inputs['Roughness'])
-								blenderTexture.location = Vector((-300, -200))
-							elif 'MetalnessMap_Tex_' in textures:
+								blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], TRM_Subsurface.inputs['BSM Tex'])
+								if 'pes3DDF_Hair' in blenderMaterial.fmdl_material_technique:
+									blenderMaterial.node_tree.links.new(blenderTexture.outputs['Alpha'], principled.inputs['Alpha'])
+							elif 'NormalMap_Tex_' in textureRole:
+								blenderTexture.location = Vector((-500, -220))
+								blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], NRM_Converter.inputs['NRM Tex'])
+								blenderMaterial.node_tree.links.new(blenderTexture.outputs['Alpha'], NRM_Converter.inputs['Alpha'])
+							elif 'SpecularMap_Tex_' in textureRole:
+								blenderTexture.location = Vector((-500, 40))
+								blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], SRM_Seperator.inputs['SRM Tex'])
+							elif 'RoughnessMap_Tex_' in textureRole:
+								blenderTexture.location = Vector((-750, 40))
+								blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], SRM_Seperator.inputs['RGM Tex'])
+							elif 'Translucent_Tex_' in textureRole:
+								blenderTexture.location = Vector((-500, 300))
+								blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], TRM_Subsurface.inputs['TRM Tex'])
+							elif 'MetalnessMap_Tex_' in textureRole:
 								blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], principled.inputs['Metallic'])
-								blenderTexture.location = Vector((-300, -400))
+								blenderTexture.location = Vector((-750, 0))
 							else:
 								blenderTexture.location = Vector((rdmx, rdmy))
 
@@ -127,7 +205,7 @@ def setShader(self, context):
 						nodes.select = False
 		
 		self.report({"INFO"}, "Shader has been set!!")
-	except IOError:
+	except:
 		self.report({"WARNING"}, "Error when set shader!!")
 		return {'CANCELLED'}
 	return 1

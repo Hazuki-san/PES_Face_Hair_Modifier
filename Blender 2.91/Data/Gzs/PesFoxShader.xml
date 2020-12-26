@@ -174,6 +174,18 @@ These are some of the original shaders from KONAMI: https://pastebin.com/raw/Cpz
 		<Parameter vector="PCBoxCenter" xValue="0" yValue="15" zValue="0" wValue="1"/>
 		<Parameter vector="PCBoxSize" xValue="250" yValue="80" zValue="200" wValue="1"/>
     </FoxShader>
+		<FoxShader shader="pes_3dfw_glass3">
+		<Parameter technique="pes3DFW_Glass3"/>
+		<Parameter textures="Base_Tex_LIN"/>
+		<Parameter textures="NormalMap_Tex_NRM"/>
+		<Parameter textures="GlassReflectionMask_Tex_LIN"/>
+		<Parameter vector="MatParamIndex_0" xValue="26" yValue="0" zValue="0" wValue="0"/>
+		<Parameter vector="ReflectionIntensity" xValue="4" yValue="0" zValue="0" wValue="0"/>
+		<Parameter vector="GlassRoughness" xValue="0.09" yValue="0" zValue="0" wValue="0"/>
+		<Parameter vector="GlassFlatness" xValue="0.45" yValue="0" zValue="0" wValue="0"/>
+		<Parameter vector="DesaturationStrength" xValue="0.85" yValue="0" zValue="0" wValue="0"/>
+		<Parameter vector="DesaturationAltitude" xValue="0.50" yValue="0" zValue="0" wValue="0"/>
+    </FoxShader>
 	<FoxShader shader="pes_3dfw_const_srgb_bill">
 		<Parameter technique="pes3DFW_Constant_SRGB_Bill"/>
 		<Parameter textures="Base_Tex_SRGB_1"/>

@@ -8,7 +8,7 @@ from mathutils import Vector
 import random
 import bmesh
 
-from . import FmdlFile, FmdlMeshSplitting, FmdlSplitVertexEncoding, Ftex, PesSkeletonData
+from . import FmdlFile, FmdlMeshSplitting, FmdlSplitVertexEncoding, Ftex, PesSkeletonData, PesNodes
 from collections import defaultdict
 
 
@@ -163,8 +163,25 @@ def importFmdl(context, fmdl, filename, importSettings = None):
 				blenderImage.filepath = filename
 				blenderImage.reload()
 				
-			blenderMaterial.blend_method = 'BLEND'
-			blenderMaterial.show_transparent_back = False
+			
+			if 'pes3DDF_Hair' in blenderMaterial.fmdl_material_technique:
+				blenderMaterial.blend_method = 'CLIP'
+				blenderMaterial.alpha_threshold = 0.2
+			elif 'pes3DDC_Adjust' in blenderMaterial.fmdl_material_technique:
+				blenderMaterial.blend_method = 'CLIP'
+				blenderMaterial.alpha_threshold = 1.0
+				blenderImage = bpy.data.images[texture.filename]
+			elif 'fox3DDC_Blin' in blenderMaterial.fmdl_material_technique:
+				blenderMaterial.blend_method = 'BLEND'
+				blenderMaterial.show_transparent_back = True
+				blenderImage = bpy.data.images[texture.filename]
+			elif 'fox3DDF_Blin_Translucent' in blenderMaterial.fmdl_material_technique:
+				blenderMaterial.blend_method = 'BLEND'
+				blenderMaterial.show_transparent_back = False
+				blenderImage = bpy.data.images[texture.filename]
+			else:
+				blenderMaterial.blend_method = 'BLEND'
+				blenderMaterial.show_transparent_back = False
 				
 			blenderTexture = blenderMaterial.node_tree.nodes.new("ShaderNodeTexImage")
 			blenderTexture.fmdl_texture_filename = blenderImage.filepath
@@ -205,7 +222,7 @@ def importFmdl(context, fmdl, filename, importSettings = None):
 				blenderTexture.location = Vector((-300, -400))
 			else:
 				blenderTexture.location = Vector((rdmx, rdmy))
-		
+
 		if blenderTexture is not None:
 		 	blenderTexture.fmdl_texture_filename = texture.filename
 		 	blenderTexture.fmdl_texture_directory = texture.directory
@@ -245,7 +262,7 @@ def importFmdl(context, fmdl, filename, importSettings = None):
 				uvMapNormals = UV_MAP_COLOR
 			
 			for (role, texture) in materialInstance.textures:
-				addTexture(blenderMaterial, role, texture, textureIDs, uvMapColor, uvMapNormals, textureSearchPath, loadTextures)
+				PesNodes.addTexture(blenderMaterial, role, texture, textureIDs, uvMapColor, uvMapNormals, textureSearchPath, loadTextures)
 		
 		return materialIDs
 	

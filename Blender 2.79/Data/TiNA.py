@@ -3,6 +3,13 @@ from mathutils import Vector, Matrix
 from bpy.types import Operator, AddonPreferences
 from bpy.props import FloatProperty, BoolProperty, EnumProperty, PointerProperty
 
+# bl_info = {
+#     "name": "TiNA - Transfer Normals Add-on",
+#     "category": "Object",
+#     "description": "Easily transfer normals between objects",
+#     "author": "Modanung"
+# }
+
 class FMDL_TransferNormalsPanel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "TOOLS"
@@ -309,3 +316,30 @@ class FMDL_ClearNormals(bpy.types.Operator):
                     
 addon_keymaps = []
 tina_to_active = False
+
+# def register():
+    
+#     addon_keymaps.clear()
+
+#     bpy.utils.register_module(__name__)
+# #    bpy.types.Scene.tina_group = bpy.props.PointerProperty(type = bpy.types.VertexGroup, poll=group_poll)    
+    
+#     km = bpy.context.window_manager.keyconfigs.default.keymaps['Object Mode']
+#     for v in { True, False }:
+#         kmi = km.keymap_items.new(TransferNormals.bl_idname, 'N', 'PRESS', alt=True, shift=not v)
+#         setattr(kmi.properties, 'to_active', v)
+#         addon_keymaps.append((km, kmi))
+        
+#     kmi = km.keymap_items.new(ClearNormals.bl_idname, 'N', 'PRESS', ctrl=True, alt=True, shift=True)
+#     addon_keymaps.append((km, kmi))
+#     kmi = km.keymap_items.new(WrapNormals.bl_idname, 'W', 'PRESS', alt=True)
+#     addon_keymaps.append((km, kmi))
+
+
+# def unregister():
+#     bpy.utils.unregister_module(__name__)
+# #    del bpy.types.Scene.tina_group
+    
+#     for km, kmi in addon_keymaps:
+#         km.keymap_items.remove(kmi)
+#     addon_keymaps.clear()

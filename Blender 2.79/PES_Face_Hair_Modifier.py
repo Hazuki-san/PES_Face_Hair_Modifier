@@ -1,18 +1,17 @@
-import bpy, os, fnmatch, binascii, bmesh, shutil, os.path, struct, bpy.props, bpy_extras.io_utils, re
+import bpy, os, fnmatch, binascii, bmesh, shutil, os.path, struct, bpy.props, bpy_extras.io_utils, re, bpy.utils.previews
 from struct import *
 from bpy.props import *
 from Data import FmdlFile, Ftex, IO, PesSkeletonData, TiNA, PesFoxShader
 from configparser import ConfigParser
 from bpy.props import (IntProperty, BoolProperty, StringProperty, FloatProperty, CollectionProperty)
-import bpy.utils.previews
-pcoll = bpy.utils.previews.new()
 
 config = ConfigParser()
+icons_collections = {}
 
 bl_info = {
 	"name": "PES Face/Hair Modifier",
 	"author": "the4chancup - MjTs-140914",
-	"version": (1, 93, 2),
+	"version": (1, 93, 3),
 	"blender": (2, 79, 0),
 	"api": 35853,
 	"location": "Under Scene Tab",
@@ -24,23 +23,31 @@ bl_info = {
 }
 
 TEMPPATH = str()
-TEMPPATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..\\addons\\Data')) 
-GZSPATH = '"%s\\Gzs\\GzsTool.exe"' % TEMPPATH 
-FtexTools ='"%s\\Gzs\\FtexTools.exe"' % TEMPPATH 
-texconvTools = '"%s\\Gzs\\texconv.exe"' % TEMPPATH 
-ini_sett = '%s\\Gzs\\Settings.ini' % TEMPPATH
-xml_sett = '%s\\Gzs\\PesFoxShader.xml' % TEMPPATH
-
-icons_dir = '%s\\Gzs\\icons' % TEMPPATH
-
-icons_collections = {}
+TEMPPATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+GZSPATH = '"%s\\addons\\Data\\Gzs\\GzsTool.exe"' % TEMPPATH 
+FtexTools ='"%s\\addons\\Data\\Gzs\\FtexTools.exe"' % TEMPPATH 
+texconvTools = '"%s\\addons\\Data\\Gzs\\texconv.exe"' % TEMPPATH 
+ini_sett = '%s\\addons\\Data\\Gzs\\Settings.ini' % TEMPPATH
+xml_sett = '%s\\addons\\Data\\Gzs\\PesFoxShader.xml' % TEMPPATH
+icons_dir = '%s\\addons\\Data\\Gzs\\icons' % TEMPPATH
+base_file = '%s\\addons\\Data\\Gzs\\startup.blend' % TEMPPATH
+base_file_blend = '%s\\addons\\Data\\Gzs\\base_file.blend' % TEMPPATH
 
 pes_diff_bin_data, IDoldname = [] , []
 eyeL_origin, eyeR_origin, mouth_origin = [0.02807705,0.1448301-0.00362,1.69668636147], [0.02754705,0.1446231-0.00362,1.69682636147], [-0.000365,0.1479722561,1.63275]
 
+def scene_objects():
+	inner_path = 'Object'
+	for ob_name in ('eyeL', 'eyeR', 'mouth'):
+		if not ob_name in bpy.data.objects:
+			bpy.ops.wm.append(filepath=os.path.join(base_file_blend, inner_path, ob_name), directory=os.path.join(base_file_blend, inner_path), filename=ob_name)
+
 def pes_diff_bin_imp(pes_diff_fname):
 	global pes_diff_bin_data
 	scn = bpy.context.scene
+	facepath = scn.face_path
+	oralpath = facepath[:-14] + "oral.fmdl"
+	scene_objects()
 	header_data = open(pes_diff_fname, 'rb').read(4)
 	header_string = str(header_data, "utf-8")
 	if header_string == "FACE":
@@ -57,9 +64,10 @@ def pes_diff_bin_imp(pes_diff_fname):
 		scn.eyes_size = eyes_size[0]
 
 
-		bpy.data.objects['mouth'].location[0] = (m_pos[0]) - mouth_origin[0]
-		bpy.data.objects['mouth'].location[1] = (m_pos[2]*-1) - mouth_origin[1]
-		bpy.data.objects['mouth'].location[2] = (m_pos[1]) + mouth_origin[2]
+		if not os.path.isfile(oralpath): 
+			bpy.data.objects['mouth'].location[0] = (m_pos[0]) - mouth_origin[0]
+			bpy.data.objects['mouth'].location[1] = (m_pos[2]*-1) - mouth_origin[1]
+			bpy.data.objects['mouth'].location[2] = (m_pos[1]) + mouth_origin[2]
 
 		bpy.data.objects['eyeR'].location[0] = (eyes_posR[2] * -1) - eyeR_origin[0]
 		bpy.data.objects['eyeR'].location[1] = (eyes_posR[1]) - eyeR_origin[1]
@@ -76,7 +84,9 @@ def pes_diff_bin_imp(pes_diff_fname):
 		bpy.data.objects['eyeL'].scale[1] = eyes_size[1]*1.2
 		bpy.data.objects['eyeL'].scale[2] = eyes_size[2]*1.2
 		pes_diff_bin_data.append(eyes_size[0])
-
+		if os.path.isfile(oralpath):
+			bpy.data.objects['mouth'].select = True
+			bpy.ops.object.delete() 
 	return 1
 
 
@@ -86,9 +96,10 @@ def pes_diff_bin_exp(pes_diff_fname):
 	header_string = str(header_data, "utf-8")
 	if header_string == "FACE":
 
-		m0 = (bpy.data.objects['mouth'].location[0] + mouth_origin[0])
-		m2 = (bpy.data.objects['mouth'].location[1] +  mouth_origin[1])*-1
-		m1 = (bpy.data.objects['mouth'].location[2] - mouth_origin[2])
+		if not os.path.isfile(oralpath): 
+			m0 = (bpy.data.objects['mouth'].location[0] + mouth_origin[0])
+			m2 = (bpy.data.objects['mouth'].location[1] +  mouth_origin[1])*-1
+			m1 = (bpy.data.objects['mouth'].location[2] - mouth_origin[2])
 
 		rx = (bpy.data.objects['eyeR'].location[0] + eyeR_origin[0])*-1
 		ry = (bpy.data.objects['eyeR'].location[1] + eyeR_origin[1])
@@ -202,8 +213,6 @@ vertexGroupSummaryCache = {}
 def defaultEnum(self):
 	try:
 		for ob in bpy.data.objects:
-			# object = bpy.data.objects[ob.name]
-			# bpy.context.scene.objects.active = object
 			ob.select=True
 			for slot in bpy.data.objects[ob.name].material_slots:
 				materials_name = slot.name
@@ -305,19 +314,29 @@ def exportFmdlfile(fileName, meshID, objName):
 	fmdlFile.writeFile(fileName)
 	return 1
 
-def oldIDread():
+def is_number(n):
+    is_number = True
+    try:
+        num = complex(n)
+        is_number = num == num
+    except ValueError:
+        is_number = False
+    return is_number
 
+def oldIDread():
 	scn = bpy.context.scene
+	old_path = scn.face_path[:-29]
 	IDFinds = str()
-	for ob in bpy.data.objects:
-		for mat_slot in ob.material_slots:
-			for mtex_slot in mat_slot.material.texture_slots:
-				if mtex_slot:
-					oldtexname = bpy.data.textures[mtex_slot.name].fmdl_texture_directory
-					IDFinds = re.findall(r'\w+', oldtexname)
+	oldID = str()
 	try:
-		IDoldname.append(IDFinds[6])
-		scn.oldid = IDFinds[6]
+		for i in range(100):
+			IDFinds = re.findall(r'\w+', old_path)
+			oldID= IDFinds[i]
+	except:
+		pass
+
+	try:
+		scn.oldid = oldID
 	except:
 		scn.idread = False
 	pass
@@ -336,19 +355,21 @@ def NewID():
 	for ob in bpy.data.objects:
 		for mat_slot in ob.material_slots:
 			for mtex_slot in mat_slot.material.texture_slots:
-				if mtex_slot:
-					texname = bpy.data.textures[mtex_slot.name].fmdl_texture_directory
-					IDFinds = re.findall(r'\w+', old_path)
-					if OLD_ID in texname:
-						texname = texname.replace("/Assets/pes16/model/character/face/real/%s/sourceimages/" % OLD_ID, "/Assets/pes16/model/character/face/real/%s/sourceimages/" % NEW_ID)
-						bpy.data.textures[mtex_slot.name].fmdl_texture_directory = texname
+				if mtex_slot is not None:
+					if '_Tex_' in mtex_slot.name:	
+						texname = bpy.data.textures[mtex_slot.name].fmdl_texture_directory
+						if 'real' in texname:
+							IDFinds = re.findall(r'\w+', old_path)
+							texname = texname.replace(texname, "/Assets/pes16/model/character/face/real/%s/sourceimages/" % NEW_ID)
+							bpy.data.textures[mtex_slot.name].fmdl_texture_directory = texname
 	for i in range(100):
 		if len(IDFinds) == i+1:
 			OLD_ID2 = IDFinds[i]
-	scene_new_path = scene_new_path.replace(OLD_ID2, NEW_ID)
-	new_path = new_path.replace(OLD_ID2, NEW_ID)
-	os.rename(old_path, new_path)
-	scn.face_path = scene_new_path
+	if is_number(OLD_ID):
+		scene_new_path = scene_new_path.replace(OLD_ID2, NEW_ID)
+		new_path = new_path.replace(OLD_ID2, NEW_ID)
+		os.rename(old_path, new_path)
+		scn.face_path = scene_new_path
 	pass
 
 def vertexGroupSummaryGet(objectName):
@@ -494,7 +515,7 @@ class FMDL_Scene_Extract_Fpk(bpy.types.Operator, bpy_extras.io_utils.ImportHelpe
 
 
 class FMDL_Scene_Open_Image(bpy.types.Operator, bpy_extras.io_utils.ImportHelper):
-	"""Open a Image Texture"""
+	"""Open a Image Texture FTEX or DDS"""
 	bl_idname = "open.image"
 	bl_label = "Open Image Texture"
 	bl_options = {'REGISTER', 'UNDO'}
@@ -1088,8 +1109,10 @@ class FMDL_Mesh_Panel(bpy.types.Panel):
 		mesh = context.mesh
 		mainColumn = self.layout.column()
 		mainColumn.operator("primary.operator", text="Set to Default Enum", icon="LOAD_FACTORY").face_opname = "set_default_enum"
-		mainColumn.prop(mesh, "fmdl_shadow_enum")
+		mainColumn.prop(mesh, "fmdl_alpha_enum_select", text='Alpha')
+		mainColumn.prop(mesh, "fmdl_shadow_enum_select", text='Shadow')
 		mainColumn.prop(mesh, "fmdl_alpha_enum")
+		mainColumn.prop(mesh, "fmdl_shadow_enum")
 
 
 class FMDL_Material_Parameter_List_Add(bpy.types.Operator):
@@ -1178,6 +1201,34 @@ def update_shader_list(self, context):
 	try:
 		self.fox_shader = self.fmdl_material_shader
 	except:
+		pass
+
+def update_alpha_list(self, context):
+	try:
+		self.fmdl_alpha_enum = int(self.fmdl_alpha_enum_select)
+	except:
+		pass
+
+def update_alpha_enum(self, context):
+	try:
+		self.fmdl_alpha_enum_select = str(self.fmdl_alpha_enum)
+	except:
+		if not self.fmdl_alpha_enum_select == str(self.fmdl_alpha_enum):
+			self.fmdl_alpha_enum_select = 'Unknown'
+		pass
+
+def update_shadow_list(self, context):
+	try:
+		self.fmdl_shadow_enum = int(self.fmdl_shadow_enum_select)
+	except:
+		pass
+
+def update_shadow_enum(self, context):
+	try:
+		self.fmdl_shadow_enum_select = str(self.fmdl_shadow_enum)
+	except:
+		if not self.fmdl_shadow_enum_select == str(self.fmdl_shadow_enum):
+			self.fmdl_shadow_enum_select = 'Unknown'
 		pass
 
 def update_eye_size(self, context):
@@ -1699,11 +1750,11 @@ class Fmdl_UIPanel(bpy.types.Panel):
 		this_icon = icons_collections["custom_icons"]["icon_0"].icon_id
 		row.label(text="Made by: MjTs-140914 / the4chancup", icon_value=this_icon)
 		row = box.row()
-		row.label(text="Version: 1.93.2b", icon="INFO")
-		row = box.row()
-		box.label(text="This Tool Works with Only Blender v2.79", icon="BLENDER")
+		box.label(text="This Tool Works with Only Blender v2.79 (v1.93.3b)", icon="BLENDER")
 		row = box.row()
 		row.operator("primary.operator", text="Start New Scene").face_opname = "newscene"
+		row = box.row()
+		row.prop(scn, "parent_list")
 		row.operator("primary.operator", text="", icon="FILE_PARENT").face_opname = "set_parent"
 		row = box.row(align=0)
 		row = layout.row()
@@ -1821,7 +1872,6 @@ class Fmdl_UIPanel(bpy.types.Panel):
 			row.enabled = 0
 		if scn.idread == False:
 			row.enabled = 0
-		row.prop(scn, "oldid", text="Old ID")
 		row.prop(scn, "newid", text="New ID")
 		row.operator("primary.operator", text="", icon="FILE_REFRESH").face_opname = "IDRelink"
 		row = box.row() 
@@ -1891,7 +1941,33 @@ class Tool_Main_Operator(bpy.types.Operator):
 
 		if self.face_opname == "export_face":
 			if "face_high" in bpy.data.objects:
-
+				for mesh in bpy.data.meshes:
+					uv = bpy.data.meshes[mesh.name].uv_layers
+					if len(uv) == 0:
+						print("Mesh [%s] does not have a primary UV map set!" % mesh.name)
+						self.report({"WARNING"}, "Mesh [%s] does not have a primary UV map set!" % mesh.name)	
+						return {'CANCELLED'}
+					elif len(uv) == 1:
+						if uv[0].name != 'UVMap':
+							print("Mesh [%s] UVMap name isn't correct!" % mesh.name)
+							self.report({"WARNING"}, "Mesh [%s] UVMap name isn't correct!" % mesh.name)
+							return {'CANCELLED'}
+					elif len(uv) == 2:
+						if uv[1].name != 'normal_map':
+							print("Mesh [%s] normal_map name isn't correct!" % mesh.name)
+							self.report({"WARNING"}, "Mesh [%s] normal_map name isn't correct!" % mesh.name)
+							return {'CANCELLED'}
+				for ob in bpy.data.objects:
+					if ob.type == 'MESH':
+						mat = bpy.data.objects[ob.name].material_slots
+						if len(mat) == 0:
+							print("Mesh [%s] does not have an associated material!" % ob.name)
+							self.report({"WARNING"}, "Mesh [%s] does not have an associated material!" % ob.name)
+							return {'CANCELLED'}
+						if len(mat) >= 2:
+							print("Mesh [%s] too much material slots need to remove!" % ob.name)
+							self.report({"WARNING"}, "Mesh [%s] too much material slots need to remove!" % ob.name)
+							return {'CANCELLED'}
 				try:
 					materialname("mesh_id_face_0", "fox_skin_mat")
 				except:
@@ -1922,6 +1998,33 @@ class Tool_Main_Operator(bpy.types.Operator):
 
 		if self.face_opname == "export_hair":
 			if "hair_high" in bpy.data.objects:
+				for mesh in bpy.data.meshes:
+					uv = bpy.data.meshes[mesh.name].uv_layers
+					if len(uv) == 0:
+						print("Mesh [%s] does not have a primary UV map set!" % mesh.name)
+						self.report({"WARNING"}, "Mesh [%s] does not have a primary UV map set!" % mesh.name)	
+						return {'CANCELLED'}
+					elif len(uv) == 1:
+						if uv[0].name != 'UVMap':
+							print("Mesh [%s] UVMap name isn't correct!" % mesh.name)
+							self.report({"WARNING"}, "Mesh [%s] UVMap name isn't correct!" % mesh.name)
+							return {'CANCELLED'}
+					elif len(uv) == 2:
+						if uv[1].name != 'normal_map':
+							print("Mesh [%s] normal_map name isn't correct!" % mesh.name)
+							self.report({"WARNING"}, "Mesh [%s] normal_map name isn't correct!" % mesh.name)
+							return {'CANCELLED'}
+				for ob in bpy.data.objects:
+					if ob.type == 'MESH':
+						mat = bpy.data.objects[ob.name].material_slots
+						if len(mat) == 0:
+							print("Mesh [%s] does not have an associated material!" % ob.name)
+							self.report({"WARNING"}, "Mesh [%s] does not have an associated material!" % ob.name)
+							return {'CANCELLED'}
+						if len(mat) >= 2:
+							print("Mesh [%s] too much material slots need to remove!" % ob.name)
+							self.report({"WARNING"}, "Mesh [%s] too much material slots need to remove!" % ob.name)
+							return {'CANCELLED'}
 				try:
 					materialname("mesh_id_hair_0", "fox_skin_mat")
 				except:
@@ -1947,6 +2050,33 @@ class Tool_Main_Operator(bpy.types.Operator):
 			return {'FINISHED'}
 		if self.face_opname == "export_oral":
 			if "oral_high" in bpy.data.objects:
+				for mesh in bpy.data.meshes:
+					uv = bpy.data.meshes[mesh.name].uv_layers
+					if len(uv) == 0:
+						print("Mesh [%s] does not have a primary UV map set!" % mesh.name)
+						self.report({"WARNING"}, "Mesh [%s] does not have a primary UV map set!" % mesh.name)	
+						return {'CANCELLED'}
+					elif len(uv) == 1:
+						if uv[0].name != 'UVMap':
+							print("Mesh [%s] UVMap name isn't correct!" % mesh.name)
+							self.report({"WARNING"}, "Mesh [%s] UVMap name isn't correct!" % mesh.name)
+							return {'CANCELLED'}
+					elif len(uv) == 2:
+						if uv[1].name != 'normal_map':
+							print("Mesh [%s] normal_map name isn't correct!" % mesh.name)
+							self.report({"WARNING"}, "Mesh [%s] normal_map name isn't correct!" % mesh.name)
+							return {'CANCELLED'}
+				for ob in bpy.data.objects:
+					if ob.type == 'MESH':
+						mat = bpy.data.objects[ob.name].material_slots
+						if len(mat) == 0:
+							print("Mesh [%s] does not have an associated material!" % ob.name)
+							self.report({"WARNING"}, "Mesh [%s] does not have an associated material!" % ob.name)
+							return {'CANCELLED'}
+						if len(mat) >= 2:
+							print("Mesh [%s] too much material slots need to remove!" % ob.name)
+							self.report({"WARNING"}, "Mesh [%s] too much material slots need to remove!" % ob.name)
+							return {'CANCELLED'}
 				exportFmdlfile(oralpath, "mesh_id_oral", "oral_high")
 				self.report({"INFO"}, "Oral Exported Succesfully")
 			else:
@@ -2005,37 +2135,26 @@ class Tool_Main_Operator(bpy.types.Operator):
 			return {'FINISHED'}
 		
 		if self.face_opname == "IDRelink":
-			OLD_ID = scn.oldid
-			NEW_ID = scn.newid
-			new_path = facepath[:-29]
-			new_path = new_path.replace(OLD_ID, NEW_ID)
-			if scn.oldid == scn.newid:
-				self.report({"ERROR"}, "ID can't be same!")
-				print("ID can't be same!")
-				return {'CANCELLED'}
-			'''
-			if os.path.exists(new_path):
-				self.report({"ERROR"}, "ID has available in current directories!")
-				return {'CANCELLED'}
-			'''
 			if not "face_high" in bpy.data.objects:
 				self.report({"WARNING"}, "Can't relink, You need import Face!")
 			elif not "hair_high" in bpy.data.objects:
 				self.report({"WARNING"}, "Can't relink, You need import Hair!")
 			else:
-				if scn.oldid in IDoldname:
-					if scn.cnf:
+				if scn.cnf:
+					try:
 						NewID()
-						self.report({"INFO"}, "Relink ID Succesfully!")
-						print("Relink ID Succesfully!")
-						scn.cnf = False
-						scn.face_cnf = False
-						scn.hair_cnf = False
-						scn.fpk_cnf = False
-					else:
-						self.report({"WARNING"}, "ID Already relinked!")
+					except Exception as exception:
+						self.report({"WARNING"}, format(exception))
+						print(format(type(exception).__name__), format(exception))
+						return {'CANCELLED'}
+					self.report({"INFO"}, "Relink ID Succesfully!")
+					print("Relink ID Succesfully!")
+					scn.cnf = False
+					scn.face_cnf = False
+					scn.hair_cnf = False
+					scn.fpk_cnf = False
 				else:
-					self.report({"WARNING"}, "Old ID doesn't match, Please check!")
+					self.report({"WARNING"}, "ID Already relinked!")
 					print("Old ID doesn't match, Please check!")
 			return {'FINISHED'}
 
@@ -2053,30 +2172,15 @@ class Tool_Main_Operator(bpy.types.Operator):
 			bpy.ops.wm.read_homefile()
 			return {'FINISHED'}
 
-
 		if self.face_opname == "set_parent":
 			try:
-				for ob in bpy.data.objects:
-					objects = bpy.data.objects
-					for i in range(4):
-						if ob.name.startswith('mesh_id_face_%s' % i):
-							face_high = objects['MESH_face_high']
-							ob_name = objects['mesh_id_face_%s' % i]
-							ob_name.parent = face_high
-					for i in (4,5,6):
-						if ob.name.startswith('mesh_id_face_%s' % i):
-							face_parts = objects['MESH_face_parts']
-							ob_name = objects['mesh_id_face_%s' % i]
-							ob_name.parent = face_parts
-					for i in range(5):
-						if ob.name.startswith('mesh_id_hair_%s' % i):
-							hair_high = objects['MESH_hair_high']
-							ob_name = objects['mesh_id_hair_%s' % i]
-							ob_name.parent = hair_high
+				objects = bpy.data.objects
+				parentName = objects[context.scene.parent_list]
+				ob_name = objects[context.active_object.name]
+				ob_name.parent = parentName
 				self.report({"INFO"}, "Set parent succesfully!")		
-			except:
-				self.report({"WARNING"}, "Object name isn't correct!, need rename!!")
-				return {'CANCELLED'}
+			except Exception as exception:
+				self.report({"WARNING"}, format(exception))
 			return {'FINISHED'}
 
 		if self.face_opname == "set_default_enum":
@@ -2137,6 +2241,12 @@ classes = [
 
 def register():
 	skeletonTypes = []
+
+	pcoll = bpy.utils.previews.new()
+	pcoll.load("icon_0", os.path.join(icons_dir, "icon_0.dds"), 'IMAGE')
+	pcoll.load("icon_1", os.path.join(icons_dir, "icon_1.dds"), 'IMAGE')
+	icons_collections["custom_icons"] = pcoll
+
 	for pesVersion in PesSkeletonData.skeletonBones:
 		for skeletonType in PesSkeletonData.skeletonBones[pesVersion]:
 			skeletonTypes.append(('%s_%s' % (pesVersion, skeletonType), '%s %s' % (pesVersion, skeletonType), '%s %s' % (pesVersion, skeletonType)))
@@ -2191,8 +2301,11 @@ def register():
 
 	bpy.utils.register_class(FMDL_MaterialParameter)
 
-	bpy.types.Mesh.fmdl_alpha_enum = bpy.props.IntProperty(name="Alpha Enum", default=0, min=0, max=255)
-	bpy.types.Mesh.fmdl_shadow_enum = bpy.props.IntProperty(name="Shadow Enum", default=0, min=0, max=255)
+	bpy.types.Scene.parent_list = bpy.props.EnumProperty(name="Parent", items=PesFoxShader.parent_list, default="MESH_face_high")
+	bpy.types.Mesh.fmdl_alpha_enum_select = bpy.props.EnumProperty(name="Alpha Enum", items=PesFoxShader.AlphaEnum, default="0", update=update_alpha_list)
+	bpy.types.Mesh.fmdl_shadow_enum_select = bpy.props.EnumProperty(name="Shadow Enum", items=PesFoxShader.ShadowEnum, default="0", update=update_shadow_list)
+	bpy.types.Mesh.fmdl_alpha_enum = bpy.props.IntProperty(name="Alpha Enum", default=0, min=0, max=255, update=update_alpha_enum)
+	bpy.types.Mesh.fmdl_shadow_enum = bpy.props.IntProperty(name="Shadow Enum", default=0, min=0, max=255, update=update_shadow_enum)
 
 	bpy.types.Material.fox_shader = bpy.props.EnumProperty(name="Select Fox Shader", items=PesFoxShader.ShaderList, default="pes_3ddf_skin_face")
 	bpy.types.Material.fmdl_material_shader = bpy.props.StringProperty(name="Shader", default="pes_3ddf_skin_face", update=update_shader_list)
@@ -2210,12 +2323,11 @@ def register():
 	bpy.types.Mesh.fmdl_show_vertex_group_weights = bpy.props.BoolProperty(name = "Show weights [w]", default = True, options = {'SKIP_SAVE'})
 	bpy.types.Material.fmdl_material_parameter_active = bpy.props.IntProperty(name="FMDL_Material_Parameter_Name_List index", default=-1, options={'SKIP_SAVE'})
 
-	pcoll.load("icon_0", os.path.join(icons_dir, "icon_0.dds"), 'IMAGE')
-	pcoll.load("icon_1", os.path.join(icons_dir, "icon_1.dds"), 'IMAGE')
-
-	icons_collections["custom_icons"] = pcoll
 
 def unregister():
+	for pcoll in icons_collections.values():
+		bpy.utils.previews.remove(pcoll)
+	icons_collections.clear()
 	for c in classes[::-1]:
 		bpy.utils.unregister_class(c)
 	bpy.utils.unregister_class(FMDL_MaterialParameter)

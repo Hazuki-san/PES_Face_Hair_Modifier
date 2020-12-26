@@ -16,8 +16,42 @@ ShaderList = [('pes_3ddf_skin_face', 'pes_3ddf_skin_face', 'pes3DDF_Skin_Face'),
 			('pes_3dfw_eyeocclusion', 'pes_3dfw_eyeocclusion', 'pes3DFW_EyeOcclusion'),
 			('fox_3ddf_ggx_nrmuv', 'fox_3ddf_ggx_nrmuv', 'fox3DDF_GGX'),
 			('pes_3dfw_glass2', 'pes_3dfw_glass2', 'pes3DFW_Glass2'),
+			('pes_3dfw_glass3', 'pes_3dfw_glass3', 'pes3DFW_Glass3'),
 			('pes_3dfw_const_srgb_bill', 'pes_3dfw_const_srgb_bill', 'pes3DFW_Constant_SRGB_Bill')
 			   
+]
+
+AlphaEnum = [('Unknown', 'Unknown', 'Unknown'),
+			('0', 'No Alpha', 'No Alpha'),
+			('16', 'Glass', 'Glass'),
+			('17', 'Glass2', 'Glass2'),
+			('48', 'Glass3', 'Glass3'),
+			('49', 'Glass4', 'Glass4'),
+			('80', 'Decal', 'Decal'),
+			('81', 'Decal2', 'Decal2'),
+			('112', 'Eyelash', 'Eyelash'),
+			('113', 'Eyelash2', 'Eyelash2'),
+			('148', 'Parasite', 'Parasite'),
+			('140', 'Alpha2', 'Alpha2'),
+			('160', 'Alpha', 'Alpha'),
+			('192', 'Unknown OMBS', 'Unknown OMBS'),
+			('32', 'No backface culling', 'No backface culling')
+]
+ShadowEnum = [('Unknown', 'Unknown', 'Unknown'),
+			('0', 'Shadow', 'Shadow'),
+			('1', 'No Shadow', 'No Shadow'),
+			('2', 'Invisible Mesh Visible Shadow', 'Invisible Mesh Visible Shadow'),
+			('4', 'Tinted Glass', 'Tinted Glass'),
+			('5', 'Glass', 'Glass'),
+			('36', 'Light OMBS', 'Light OMBS'),
+			('37', 'Glass OMBS', 'Glass OMBS'),
+			('64', 'Shadow2', 'Shadow2'),
+			('65', 'No Shadow2', 'No Shadow2')
+]
+
+parent_list = [('MESH_face_high', 'MESH_face_high', 'Move selected object to MESH_face_high'),
+			('MESH_face_parts', 'MESH_face_parts', 'Move selected object to MESH_face_parts'),
+			('MESH_hair_high', 'MESH_hair_high', 'Move selected object to MESH_hair_high')
 ]
 
 def setShader(self, context):
