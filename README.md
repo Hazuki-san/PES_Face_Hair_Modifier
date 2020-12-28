@@ -25,7 +25,7 @@ To install, simply download the Zip file from the latest release.
 
 * [Download the addon based on the blender version you are using 2.79 or 2.9x.](https://github.com/MjTs140914/PES_Face_Hair_Modifier/releases/)
 
-* Blender 2.79 Go to File>Use Prefences>Add-ons>Install Add-ons from file
+* Blender 2.79 Go to File>User Prefences>Add-ons>Install Add-ons from file
 * Blender 2.9x Go to Edit>Prefences>Add-ons>Install
 
 
