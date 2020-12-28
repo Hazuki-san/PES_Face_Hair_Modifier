@@ -11,7 +11,7 @@ icons_collections = {}
 bl_info = {
 	"name": "PES Face/Hair Modifier",
 	"author": "the4chancup - MjTs-140914",
-	"version": (1, 93, 3),
+	"version": (1, 93, 4),
 	"blender": (2, 79, 0),
 	"api": 35853,
 	"location": "Under Scene Tab",
@@ -30,7 +30,6 @@ texconvTools = '"%s\\addons\\Data\\Gzs\\texconv.exe"' % TEMPPATH
 ini_sett = '%s\\addons\\Data\\Gzs\\Settings.ini' % TEMPPATH
 xml_sett = '%s\\addons\\Data\\Gzs\\PesFoxShader.xml' % TEMPPATH
 icons_dir = '%s\\addons\\Data\\Gzs\\icons' % TEMPPATH
-base_file = '%s\\addons\\Data\\Gzs\\startup.blend' % TEMPPATH
 base_file_blend = '%s\\addons\\Data\\Gzs\\base_file.blend' % TEMPPATH
 
 pes_diff_bin_data, IDoldname = [] , []
@@ -195,9 +194,10 @@ def remove_dds(dirPath):
 	for root, directories, filenames in os.walk(dirPath):
 		for fileName in filenames:
 			filename, extension = os.path.splitext(fileName)
-			if extension.lower() == '.dds':
+			if extension.lower() == '.dds' or extension.lower() == '.png' or extension.lower() == '.tga':
 				ddsPath = os.path.join(root, filename + extension)
-				os.remove(ddsPath)	
+				os.remove(ddsPath)
+				print('Removing texture [>{0}{1}<] succesfully'.format(filename, extension))
 	return root, directories, filenames
 
 	
@@ -213,45 +213,46 @@ vertexGroupSummaryCache = {}
 def defaultEnum(self):
 	try:
 		for ob in bpy.data.objects:
-			ob.select=True
-			for slot in bpy.data.objects[ob.name].material_slots:
-				materials_name = slot.name
-				technique = bpy.data.materials[materials_name].fmdl_material_technique
-				if technique  == 'pes3DDF_Skin_Face':
-					bpy.data.meshes[ob.name].fmdl_shadow_enum = 0
-					bpy.data.meshes[ob.name].fmdl_alpha_enum = 0
-				elif technique  == 'pes3DDC_Wet':
-					bpy.data.meshes[ob.name].fmdl_shadow_enum = 0
-					bpy.data.meshes[ob.name].fmdl_alpha_enum = 81
-				elif technique  == 'pes3DDC_Adjust_100':
-					bpy.data.meshes[ob.name].fmdl_shadow_enum = 0
-					bpy.data.meshes[ob.name].fmdl_alpha_enum = 80
-				elif technique  == 'fox3DDC_Blin':
-					bpy.data.meshes[ob.name].fmdl_shadow_enum = 0
-					bpy.data.meshes[ob.name].fmdl_alpha_enum = 112
-				elif technique  == 'pes3DFW_EyeOcclusion':
-					bpy.data.meshes[ob.name].fmdl_shadow_enum = 37
-					bpy.data.meshes[ob.name].fmdl_alpha_enum = 112
-				#Same technique but different material and value.
-				elif technique == 'pes3DDF_Hair2':
-					if  materials_name.startswith('fox_hair_mat'):
-						bpy.data.meshes[ob.name].fmdl_shadow_enum = 0
-						bpy.data.meshes[ob.name].fmdl_alpha_enum = 160
-					else:
-						bpy.data.meshes[ob.name].fmdl_shadow_enum = 1
-						bpy.data.meshes[ob.name].fmdl_alpha_enum = 160
-				elif technique == 'pes3DDF_Hair2_NrmUV':
-					if  materials_name.startswith('fox_hair_mat'):
-						bpy.data.meshes[ob.name].fmdl_shadow_enum = 0
-						bpy.data.meshes[ob.name].fmdl_alpha_enum = 160
-					else:
-						bpy.data.meshes[ob.name].fmdl_shadow_enum = 1
-						bpy.data.meshes[ob.name].fmdl_alpha_enum = 160
+			if ob.type == 'MESH' and ob.data is not None:
+				ob.select=True
+				for slot in bpy.data.objects[ob.name].material_slots:
+					materials_name = slot.name
+					technique = bpy.data.materials[materials_name].fmdl_material_technique
+					if technique  == 'pes3DDF_Skin_Face':
+						bpy.data.meshes[ob.data.name].fmdl_shadow_enum = 0
+						bpy.data.meshes[ob.data.name].fmdl_alpha_enum = 0
+					elif technique  == 'pes3DDC_Wet':
+						bpy.data.meshes[ob.data.name].fmdl_shadow_enum = 0
+						bpy.data.meshes[ob.data.name].fmdl_alpha_enum = 81
+					elif technique  == 'pes3DDC_Adjust_100':
+						bpy.data.meshes[ob.data.name].fmdl_shadow_enum = 0
+						bpy.data.meshes[ob.data.name].fmdl_alpha_enum = 80
+					elif technique  == 'fox3DDC_Blin':
+						bpy.data.meshes[ob.data.name].fmdl_shadow_enum = 0
+						bpy.data.meshes[ob.data.name].fmdl_alpha_enum = 112
+					elif technique  == 'pes3DFW_EyeOcclusion':
+						bpy.data.meshes[ob.data.name].fmdl_shadow_enum = 37
+						bpy.data.meshes[ob.data.name].fmdl_alpha_enum = 112
+					#Same technique but different material and value.
+					elif technique == 'pes3DDF_Hair2':
+						if  materials_name.startswith('fox_hair_mat'):
+							bpy.data.meshes[ob.data.name].fmdl_shadow_enum = 0
+							bpy.data.meshes[ob.data.name].fmdl_alpha_enum = 160
+						else:
+							bpy.data.meshes[ob.data.name].fmdl_shadow_enum = 1
+							bpy.data.meshes[ob.data.name].fmdl_alpha_enum = 160
+					elif technique == 'pes3DDF_Hair2_NrmUV':
+						if  materials_name.startswith('fox_hair_mat'):
+							bpy.data.meshes[ob.data.name].fmdl_shadow_enum = 0
+							bpy.data.meshes[ob.data.name].fmdl_alpha_enum = 160
+						else:
+							bpy.data.meshes[ob.data.name].fmdl_shadow_enum = 1
+							bpy.data.meshes[ob.data.name].fmdl_alpha_enum = 160
 			ob.select=False
 		self.report({"INFO"}, "Enum has been reset to default!!")
-	except:
-		self.report({"WARNING"}, "Object name and object data isn't match!, need rename!!")
-		print("Object name and object data isn't correct!, need rename with same name, ex: {mesh_id_face_0, mesh_id_face_0}!!")
+	except Exception as exception:
+		self.report({"WARNING"}, format(exception))
+		print(format(type(exception).__name__), format(exception))
 		return {'CANCELLED'}
 	return 1
 
@@ -504,8 +505,6 @@ class FMDL_Scene_Extract_Fpk(bpy.types.Operator, bpy_extras.io_utils.ImportHelpe
 				for meshname in ('mesh_id_face_1', 'mesh_id_face_3', 'mesh_id_face_5', 'mesh_id_face_6'):
 					if not bpy.data.objects[meshname].hide:
 						bpy.data.objects[meshname].hide = True
-				if bpy.data.scenes['Scene'] is not None:
-					bpy.data.scenes['Scene'].layers[10] = True
 			except:
 				pass
 
@@ -523,8 +522,8 @@ class FMDL_Scene_Open_Image(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
 	
 	import_label = "Open Image Texture"
 	
-	filename_ext = ""
-	filter_glob = bpy.props.StringProperty(default="*.dds;*.ftex", options={'HIDDEN'})
+	filename_ext = "DDS, FTEX, PNG, TGA"
+	filter_glob = bpy.props.StringProperty(default="*.dds;*.ftex;*.png;*.tga", options={'HIDDEN'})
 
 	
 	def execute(self, context):
@@ -543,7 +542,24 @@ class FMDL_Scene_Open_Image(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
 				convert_ftex(filePath)
 			texconv(DDSPath, dirpath, " -r -y -f DXT5 -ft dds -o ", True)
 			filePath = DDSPath
-		image = bpy.data.images.new(name=fileName, width=1024, height=1024, alpha=True,float_buffer=False)
+		elif extension.lower() == '.png':
+			fileName = filenames + extension
+			PNGPath = os.path.join(dirpath, fileName)
+			texconv(PNGPath, dirpath, " -r -y -l -f DXT5 -ft dds -srgb -o ", False)
+			fileName = filenames + '.dds'
+			PNGPath = os.path.join(dirpath, fileName)
+			filePath = PNGPath
+		elif extension.lower() == '.tga':
+			fileName = filenames + extension
+			TGAPath = os.path.join(dirpath, fileName)
+			texconv(TGAPath, dirpath, " -r -y -l -f DXT5 -ft dds -srgb -o ", False)
+			fileName = filenames + '.dds'
+			TGAPath = os.path.join(dirpath, fileName)
+			filePath = TGAPath
+		if fileName in bpy.data.images:
+			image = bpy.data.images[fileName]
+		else:
+			image = bpy.data.images.new(name=fileName, width=1024, height=1024, alpha=True,float_buffer=False)
 		image.source = 'FILE'
 		image.filepath=filePath
 
@@ -1750,7 +1766,7 @@ class Fmdl_UIPanel(bpy.types.Panel):
 		this_icon = icons_collections["custom_icons"]["icon_0"].icon_id
 		row.label(text="Made by: MjTs-140914 / the4chancup", icon_value=this_icon)
 		row = box.row()
-		box.label(text="This Tool Works with Only Blender v2.79 (v1.93.3b)", icon="BLENDER")
+		box.label(text="This Tool Works with Only Blender v2.79 (v1.93.4b)", icon="BLENDER")
 		row = box.row()
 		row.operator("primary.operator", text="Start New Scene").face_opname = "newscene"
 		row = box.row()
@@ -1941,33 +1957,37 @@ class Tool_Main_Operator(bpy.types.Operator):
 
 		if self.face_opname == "export_face":
 			if "face_high" in bpy.data.objects:
-				for mesh in bpy.data.meshes:
-					uv = bpy.data.meshes[mesh.name].uv_layers
-					if len(uv) == 0:
-						print("Mesh [%s] does not have a primary UV map set!" % mesh.name)
-						self.report({"WARNING"}, "Mesh [%s] does not have a primary UV map set!" % mesh.name)	
-						return {'CANCELLED'}
-					elif len(uv) == 1:
-						if uv[0].name != 'UVMap':
-							print("Mesh [%s] UVMap name isn't correct!" % mesh.name)
-							self.report({"WARNING"}, "Mesh [%s] UVMap name isn't correct!" % mesh.name)
-							return {'CANCELLED'}
-					elif len(uv) == 2:
-						if uv[1].name != 'normal_map':
-							print("Mesh [%s] normal_map name isn't correct!" % mesh.name)
-							self.report({"WARNING"}, "Mesh [%s] normal_map name isn't correct!" % mesh.name)
-							return {'CANCELLED'}
-				for ob in bpy.data.objects:
-					if ob.type == 'MESH':
-						mat = bpy.data.objects[ob.name].material_slots
-						if len(mat) == 0:
-							print("Mesh [%s] does not have an associated material!" % ob.name)
-							self.report({"WARNING"}, "Mesh [%s] does not have an associated material!" % ob.name)
-							return {'CANCELLED'}
-						if len(mat) >= 2:
-							print("Mesh [%s] too much material slots need to remove!" % ob.name)
-							self.report({"WARNING"}, "Mesh [%s] too much material slots need to remove!" % ob.name)
-							return {'CANCELLED'}
+				for child_name in ('face_high','MESH_face_high', 'MESH_face_parts'):
+					for ob in bpy.data.objects[child_name].children:
+						if ob.type == 'MESH' and ob.data is not None:
+							uv = bpy.data.meshes[ob.data.name].uv_layers
+							mat = bpy.data.objects[ob.name].material_slots
+							if len(uv) == 0:
+								print("Mesh [%s] does not have a primary UV map set!" % ob.name)
+								self.report({"WARNING"}, "Mesh [%s] does not have a primary UV map set!" % ob.name)	
+								return {'CANCELLED'}
+							elif len(uv) >= 3:
+								print("Mesh [%s] too much UVMap slots, need to remove!" % ob.name)
+								self.report({"WARNING"}, "Mesh [%s] too much UVMap slots, need to remove!" % ob.name)	
+								return {'CANCELLED'}
+							elif len(uv) == 1:
+								if uv[0].name != 'UVMap':
+									print("Mesh [%s] UVMap name isn't correct!" % ob.name)
+									self.report({"WARNING"}, "Mesh [%s] UVMap name isn't correct!" % ob.name)
+									return {'CANCELLED'}
+							elif len(uv) == 2:
+								if uv[1].name != 'normal_map':
+									print("Mesh [%s] normal_map name isn't correct!" % ob.name)
+									self.report({"WARNING"}, "Mesh [%s] normal_map name isn't correct!" % ob.name)
+									return {'CANCELLED'}
+							if len(mat) == 0:
+								print("Mesh [%s] does not have an associated material!" % ob.name)
+								self.report({"WARNING"}, "Mesh [%s] does not have an associated material!" % ob.name)
+								return {'CANCELLED'}
+							if len(mat) >= 2:
+								print("Mesh [%s] too much material slots need to remove!" % ob.name)
+								self.report({"WARNING"}, "Mesh [%s] too much material slots need to remove!" % ob.name)
+								return {'CANCELLED'}
 				try:
 					materialname("mesh_id_face_0", "fox_skin_mat")
 				except:
@@ -1976,9 +1996,9 @@ class Tool_Main_Operator(bpy.types.Operator):
 				exportFmdlfile(fileName, "mesh_id_face", "face_high")
 				self.report({"INFO"}, "Face Exported Succesfully")
 				scn.face_cnf = True
+				print("Face Exported Succesfully")
 			else:
 				self.report({"WARNING"}, "Import Face before export!!")
-			print("Face Exported Succesfully")
 			return {'FINISHED'}
 
 		if self.face_opname == "import_hair":
@@ -1998,33 +2018,37 @@ class Tool_Main_Operator(bpy.types.Operator):
 
 		if self.face_opname == "export_hair":
 			if "hair_high" in bpy.data.objects:
-				for mesh in bpy.data.meshes:
-					uv = bpy.data.meshes[mesh.name].uv_layers
-					if len(uv) == 0:
-						print("Mesh [%s] does not have a primary UV map set!" % mesh.name)
-						self.report({"WARNING"}, "Mesh [%s] does not have a primary UV map set!" % mesh.name)	
-						return {'CANCELLED'}
-					elif len(uv) == 1:
-						if uv[0].name != 'UVMap':
-							print("Mesh [%s] UVMap name isn't correct!" % mesh.name)
-							self.report({"WARNING"}, "Mesh [%s] UVMap name isn't correct!" % mesh.name)
-							return {'CANCELLED'}
-					elif len(uv) == 2:
-						if uv[1].name != 'normal_map':
-							print("Mesh [%s] normal_map name isn't correct!" % mesh.name)
-							self.report({"WARNING"}, "Mesh [%s] normal_map name isn't correct!" % mesh.name)
-							return {'CANCELLED'}
-				for ob in bpy.data.objects:
-					if ob.type == 'MESH':
-						mat = bpy.data.objects[ob.name].material_slots
-						if len(mat) == 0:
-							print("Mesh [%s] does not have an associated material!" % ob.name)
-							self.report({"WARNING"}, "Mesh [%s] does not have an associated material!" % ob.name)
-							return {'CANCELLED'}
-						if len(mat) >= 2:
-							print("Mesh [%s] too much material slots need to remove!" % ob.name)
-							self.report({"WARNING"}, "Mesh [%s] too much material slots need to remove!" % ob.name)
-							return {'CANCELLED'}
+				for child_name in ('hair_high','MESH_hair_high'):
+					for ob in bpy.data.objects[child_name].children:
+						if ob.type == 'MESH' and ob.data is not None:
+							uv = bpy.data.meshes[ob.data.name].uv_layers
+							mat = bpy.data.objects[ob.name].material_slots
+							if len(uv) == 0:
+								print("Mesh [%s] does not have a primary UV map set!" % ob.name)
+								self.report({"WARNING"}, "Mesh [%s] does not have a primary UV map set!" % ob.name)	
+								return {'CANCELLED'}
+							elif len(uv) >= 3:
+								print("Mesh [%s] too much UVMap slots, need to remove!" % ob.name)
+								self.report({"WARNING"}, "Mesh [%s] too much UVMap slots, need to remove!" % ob.name)	
+								return {'CANCELLED'}
+							elif len(uv) == 1:
+								if uv[0].name != 'UVMap':
+									print("Mesh [%s] UVMap name isn't correct!" % ob.name)
+									self.report({"WARNING"}, "Mesh [%s] UVMap name isn't correct!" % ob.name)
+									return {'CANCELLED'}
+							elif len(uv) == 2:
+								if uv[1].name != 'normal_map':
+									print("Mesh [%s] normal_map name isn't correct!" % ob.name)
+									self.report({"WARNING"}, "Mesh [%s] normal_map name isn't correct!" % ob.name)
+									return {'CANCELLED'}
+							if len(mat) == 0:
+								print("Mesh [%s] does not have an associated material!" % ob.name)
+								self.report({"WARNING"}, "Mesh [%s] does not have an associated material!" % ob.name)
+								return {'CANCELLED'}
+							if len(mat) >= 2:
+								print("Mesh [%s] too much material slots need to remove!" % ob.name)
+								self.report({"WARNING"}, "Mesh [%s] too much material slots need to remove!" % ob.name)
+								return {'CANCELLED'}
 				try:
 					materialname("mesh_id_hair_0", "fox_skin_mat")
 				except:
@@ -2033,9 +2057,9 @@ class Tool_Main_Operator(bpy.types.Operator):
 				exportFmdlfile(hairpath, "mesh_id_hair", "hair_high")
 				scn.hair_cnf = True
 				self.report({"INFO"}, "Hair Exported Succesfully")
+				print("Hair Exported Succesfully")
 			else:
 				self.report({"WARNING"}, "Import Hair before export!!")
-			print("Hair Exported Succesfully")
 			return {'FINISHED'}
 
 		if self.face_opname == "import_oral":
@@ -2050,25 +2074,28 @@ class Tool_Main_Operator(bpy.types.Operator):
 			return {'FINISHED'}
 		if self.face_opname == "export_oral":
 			if "oral_high" in bpy.data.objects:
-				for mesh in bpy.data.meshes:
-					uv = bpy.data.meshes[mesh.name].uv_layers
-					if len(uv) == 0:
-						print("Mesh [%s] does not have a primary UV map set!" % mesh.name)
-						self.report({"WARNING"}, "Mesh [%s] does not have a primary UV map set!" % mesh.name)	
-						return {'CANCELLED'}
-					elif len(uv) == 1:
-						if uv[0].name != 'UVMap':
-							print("Mesh [%s] UVMap name isn't correct!" % mesh.name)
-							self.report({"WARNING"}, "Mesh [%s] UVMap name isn't correct!" % mesh.name)
-							return {'CANCELLED'}
-					elif len(uv) == 2:
-						if uv[1].name != 'normal_map':
-							print("Mesh [%s] normal_map name isn't correct!" % mesh.name)
-							self.report({"WARNING"}, "Mesh [%s] normal_map name isn't correct!" % mesh.name)
-							return {'CANCELLED'}
-				for ob in bpy.data.objects:
-					if ob.type == 'MESH':
+				for ob in bpy.data.objects['oral_high'].children:
+					if ob.type == 'MESH' and ob.data is not None:
+						uv = bpy.data.meshes[ob.data.name].uv_layers
 						mat = bpy.data.objects[ob.name].material_slots
+						if len(uv) == 0:
+							print("Mesh [%s] does not have a primary UV map set!" % ob.name)
+							self.report({"WARNING"}, "Mesh [%s] does not have a primary UV map set!" % ob.name)	
+							return {'CANCELLED'}
+						elif len(uv) >= 3:
+							print("Mesh [%s] too much UVMap slots, need to remove!" % ob.name)
+							self.report({"WARNING"}, "Mesh [%s] too much UVMap slots, need to remove!" % ob.name)	
+							return {'CANCELLED'}
+						elif len(uv) == 1:
+							if uv[0].name != 'UVMap':
+								print("Mesh [%s] UVMap name isn't correct!" % ob.name)
+								self.report({"WARNING"}, "Mesh [%s] UVMap name isn't correct!" % ob.name)
+								return {'CANCELLED'}
+						elif len(uv) == 2:
+							if uv[1].name != 'normal_map':
+								print("Mesh [%s] normal_map name isn't correct!" % ob.name)
+								self.report({"WARNING"}, "Mesh [%s] normal_map name isn't correct!" % ob.name)
+								return {'CANCELLED'}
 						if len(mat) == 0:
 							print("Mesh [%s] does not have an associated material!" % ob.name)
 							self.report({"WARNING"}, "Mesh [%s] does not have an associated material!" % ob.name)
@@ -2079,9 +2106,9 @@ class Tool_Main_Operator(bpy.types.Operator):
 							return {'CANCELLED'}
 				exportFmdlfile(oralpath, "mesh_id_oral", "oral_high")
 				self.report({"INFO"}, "Oral Exported Succesfully")
+				print("Oral Exported Succesfully")
 			else:
 				self.report({"WARNING"}, "Import Oral before export!!")
-			print("Oral Exported Succesfully")
 			return {'FINISHED'}
 
 		if self.face_opname == "pack_fpk":
@@ -2127,7 +2154,6 @@ class Tool_Main_Operator(bpy.types.Operator):
 			try:
 				for meshname in ('mesh_id_face_1', 'mesh_id_face_3', 'mesh_id_face_5', 'mesh_id_face_6'):
 					bpy.data.objects[meshname].hide = True
-				bpy.data.scenes['Scene'].layers[10] = True
 			except:
 				pass
 			self.report({"INFO"}, "PES_DIFF.BIN Imported Succesfully!")
