@@ -84,12 +84,9 @@ def createFittingBoundingBox(context, meshObject):
 def importFmdl(context, fmdl, filename, importSettings = None):
 	UV_MAP_COLOR = 'UVMap'
 	UV_MAP_NORMALS = 'normal_map'
-	scn = bpy.context.scene
-	facepath = scn.face_path
 	def findTexture(texture, textureSearchPath):
 		textureFilename = texture.directory.replace('\\', '/').rstrip('/') + '/' + texture.filename.replace('\\', '/').lstrip('/')
 		textureFilenameComponents = tuple(filter(None, textureFilename.split('/')))
-
 		if len(textureFilenameComponents) == 0:
 			return None
 		filename = textureFilenameComponents[-1]
@@ -116,7 +113,6 @@ def importFmdl(context, fmdl, filename, importSettings = None):
 				
 				if len(filenames) == 0:
 					directory = os.path.join(searchDirectory, *suffix)
-					
 					if not os.path.isdir(directory):
 						continue
 					
@@ -128,108 +124,64 @@ def importFmdl(context, fmdl, filename, importSettings = None):
 						if re.match('^u[0-9]{4}p1\.dds$', entry, flags = re.IGNORECASE):
 							fullFilename = os.path.join(directory, entry)
 							if os.path.isfile(fullFilename):
-								print(entry)
 								return fullFilename
 		
 		return None
-
+	
 	def addTexture(blenderMaterial, textureRole, texture, textureIDs, uvMapColor, uvMapNormals, textureSearchPath, loadTextures):
-		blenderMaterial.use_nodes = True
 		identifier = (textureRole, texture)
-		texture_path = facepath[:-29] + "/sourceimages/#windx11/" 
-		texture_path = texture_path.replace('/', '\\')
-		textureName=textureRole
-		textureLabel=texture.filename
 		if identifier in textureIDs:
-			blenderTexture = blenderMaterial.node_tree.get(textureIDs[identifier])
+			blenderTexture = bpy.data.textures[textureIDs[identifier]]
 		else:
-			blenderImage = bpy.data.images.new(texture.filename, width=0, height=0)
+			blenderImage = bpy.data.images.new(texture.filename, width = 0, height = 0)
 			blenderImage.source = 'FILE'
-
+			
 			if '_SRGB' in textureRole:
 				blenderImage.colorspace_settings.name = 'sRGB'
 			elif '_LIN' in textureRole:
 				blenderImage.colorspace_settings.name = 'Linear'
 			else:
 				blenderImage.colorspace_settings.name = 'Non-Color'
-
-			filename = findTexture(texture, textureSearchPath)
-			if filename is None:
-				blenderImage.filepath =  texture_path + texture.filename
-			elif filename.lower().endswith('.ftex'):
-				blenderImage.filepath = filename
-				Ftex.blenderImageLoadFtex(blenderImage, bpy.app.tempdir)
-			else:
-				blenderImage.filepath = filename
-				blenderImage.reload()
-				
 			
-			if 'pes3DDF_Hair' in blenderMaterial.fmdl_material_technique:
-				blenderMaterial.blend_method = 'CLIP'
-				blenderMaterial.alpha_threshold = 0.2
-			elif 'pes3DDC_Adjust' in blenderMaterial.fmdl_material_technique:
-				blenderMaterial.blend_method = 'CLIP'
-				blenderMaterial.alpha_threshold = 1.0
-				blenderImage = bpy.data.images[texture.filename]
-			elif 'fox3DDC_Blin' in blenderMaterial.fmdl_material_technique:
-				blenderMaterial.blend_method = 'BLEND'
-				blenderMaterial.show_transparent_back = True
-				blenderImage = bpy.data.images[texture.filename]
-			elif 'fox3DDF_Blin_Translucent' in blenderMaterial.fmdl_material_technique:
-				blenderMaterial.blend_method = 'BLEND'
-				blenderMaterial.show_transparent_back = False
-				blenderImage = bpy.data.images[texture.filename]
-			else:
-				blenderMaterial.blend_method = 'BLEND'
-				blenderMaterial.show_transparent_back = False
-				
-			blenderTexture = blenderMaterial.node_tree.nodes.new("ShaderNodeTexImage")
-			blenderTexture.fmdl_texture_filename = blenderImage.filepath
-				
-
-			blenderTexture.fmdl_texture_directory = texture.directory
-
-			blenderTexture.fmdl_texture_role = textureRole
-			blenderTexture.name = textureName
-			blenderTexture.label = textureLabel
+			if loadTextures:
+				filename = findTexture(texture, textureSearchPath)
+				if filename == None:
+					blenderImage.filepath = texture.directory + texture.filename
+				elif filename.lower().endswith('.ftex'):
+					blenderImage.filepath = filename
+					Ftex.blenderImageLoadFtex(blenderImage, bpy.app.tempdir)
+				else:
+					blenderImage.filepath = filename
+					blenderImage.reload()
+			
+			textureName = "[%s] %s" % (textureRole, texture.filename)
+			blenderTexture = bpy.data.textures.new(textureName, type = 'IMAGE')
 			blenderTexture.image = blenderImage
-			principled = blenderMaterial.node_tree.nodes['Principled BSDF']
-			rdmx = random.randint(-500, 400)
-			rdmy = random.randint(-400, 300)
-			blenderImage.alpha_mode = 'STRAIGHT'
-			if blenderMaterial.fmdl_material_shader == 'pes_3ddf_skin_face':
-				blenderImage.alpha_mode = 'NONE'
-				
-			blenderTexture.select = True
-			blenderMaterial.node_tree.nodes.active = blenderTexture
-					
-			if 'Base_Tex_' in textureRole:
-				blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], principled.inputs['Base Color'])
-				if blenderImage.alpha_mode != 'NONE':
-					blenderMaterial.node_tree.links.new(blenderTexture.outputs['Alpha'], principled.inputs['Alpha'])
-				blenderTexture.location = Vector((-300, 300))
-			elif 'NormalMap_Tex_' in textureRole:
-				blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], principled.inputs['Normal'])
-				blenderTexture.location = Vector((300, 0))
-			elif 'SpecularMap_Tex_' in textureRole:
-				blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], principled.inputs['Specular'])
-				blenderTexture.location = Vector((-300, 50))
-			elif 'RoughnessMap_Tex_' in textureRole:
-				blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], principled.inputs['Roughness'])
-				blenderTexture.location = Vector((-300, -200))
-			elif 'MetalnessMap_Tex_' in textureRole:
-				blenderMaterial.node_tree.links.new(blenderTexture.outputs['Color'], principled.inputs['Metallic'])
-				blenderTexture.location = Vector((-300, -400))
-			else:
-				blenderTexture.location = Vector((rdmx, rdmy))
-
-		if blenderTexture is not None:
-		 	blenderTexture.fmdl_texture_filename = texture.filename
-		 	blenderTexture.fmdl_texture_directory = texture.directory
-		 	blenderTexture.fmdl_texture_role = textureRole
-
-		for nodes in blenderMaterial.node_tree.nodes:
-			nodes.select = False 
+			blenderTexture.use_alpha = True
+			
+			if '_NRM' in textureRole:
+				blenderTexture.use_normal_map = True
+			
+			textureIDs[identifier] = blenderTexture.name
+		
+		blenderTextureSlot = blenderMaterial.texture_slots.add()
+		blenderTextureSlot.texture = blenderTexture
+		blenderTextureSlot.texture_coords = 'UV'
+		if '_NRM' in textureRole:
+			blenderTextureSlot.uv_layer = uvMapNormals
+		else:
+			blenderTextureSlot.uv_layer = uvMapColor
+		
+		if textureRole == 'Base_Tex_SRGB' or textureRole == 'Base_Tex_LIN':
+			blenderTextureSlot.use_map_diffuse = True
+			blenderTextureSlot.use_map_color_diffuse = True
+			blenderTextureSlot.use = True
+		else:
+			blenderTextureSlot.use = False
+		
+		blenderTexture.fmdl_texture_filename = texture.filename
+		blenderTexture.fmdl_texture_directory = texture.directory
+		blenderTexture.fmdl_texture_role = textureRole
 	
 	def materialHasSeparateUVMaps(materialInstance, fmdl):
 		for mesh in fmdl.meshes:
@@ -262,7 +214,7 @@ def importFmdl(context, fmdl, filename, importSettings = None):
 				uvMapNormals = UV_MAP_COLOR
 			
 			for (role, texture) in materialInstance.textures:
-				PesNodes.addTexture(blenderMaterial, role, texture, textureIDs, uvMapColor, uvMapNormals, textureSearchPath, loadTextures)
+				PesNodes.addTexture(context, blenderMaterial, role, texture, textureIDs, uvMapColor, uvMapNormals, textureSearchPath, loadTextures)
 		
 		return materialIDs
 	

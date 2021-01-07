@@ -66,14 +66,11 @@ def createNodes(blenderMaterial):
 		new_group_node.node_tree = bpy.data.node_groups['NRM Converter']
 		blenderMaterial.node_tree.nodes['Group'].name = 'NRM Converter'
 
-def addTexture(blenderMaterial, textureRole, texture, textureIDs, uvMapColor, uvMapNormals, textureSearchPath, loadTextures):
-	
-	scn = bpy.context.scene
-	facepath = scn.face_path
+def addTexture(context, blenderMaterial, textureRole, texture, textureIDs, uvMapColor, uvMapNormals, textureSearchPath, loadTextures):
+
 	blenderMaterial.use_nodes = True
 	identifier = (textureRole, texture)
-	texture_path = facepath[:-29] + "/sourceimages/#windx11/" 
-	texture_path = texture_path.replace('/', '\\')
+	texture_path = context.scene.face_path[:-29] + "\\sourceimages\\#windx11\\" + texture.filename
 	textureName=textureRole
 	textureLabel=texture.filename
 	if identifier in textureIDs:
@@ -95,7 +92,7 @@ def addTexture(blenderMaterial, textureRole, texture, textureIDs, uvMapColor, uv
 
 		filename = findTexture(texture, textureSearchPath)
 		if filename is None:
-			blenderImage.filepath =  texture_path + texture.filename
+			blenderImage.filepath = texture_path
 		elif filename.lower().endswith('.ftex'):
 			blenderImage.filepath = filename
 			Ftex.blenderImageLoadFtex(blenderImage, bpy.app.tempdir)

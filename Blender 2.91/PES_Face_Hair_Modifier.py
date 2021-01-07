@@ -13,7 +13,7 @@ icons_collections = {}
 bl_info = {
 	"name": "PES Face/Hair Modifier",
 	"author": "the4chancup - MjTs-140914",
-	"version": (1, 93, 4),
+	"version": (1, 93, 5),
 	"blender": (2, 80, 0),
 	"api": 35853,
 	"location": "Under Scene Tab",
@@ -24,15 +24,15 @@ bl_info = {
 	"category": "System"
 }
 
-TEMPPATH = str()
-TEMPPATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
-GZSPATH = '"%s\\addons\\Data\\Gzs\\GzsTool.exe"' % TEMPPATH 
-FtexTools ='"%s\\addons\\Data\\Gzs\\FtexTools.exe"' % TEMPPATH 
-texconvTools = '"%s\\addons\\Data\\Gzs\\texconv.exe"' % TEMPPATH 
-ini_sett = '%s\\addons\\Data\\Gzs\\Settings.ini' % TEMPPATH
-xml_sett = '%s\\addons\\Data\\Gzs\\PesFoxShader.xml' % TEMPPATH
-icons_dir = '%s\\addons\\Data\\Gzs\\icons' % TEMPPATH
-base_file_blend = '%s\\addons\\Data\\Gzs\\base_file.blend' % TEMPPATH
+AddonsPath = str()
+AddonsPath = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+GZSPATH = '"%s\\addons\\Data\\Gzs\\GzsTool.exe"' % AddonsPath 
+FtexTools ='"%s\\addons\\Data\\Gzs\\FtexTools.exe"' % AddonsPath 
+texconvTools = '"%s\\addons\\Data\\Gzs\\texconv.exe"' % AddonsPath 
+ini_sett = '%s\\addons\\Data\\Gzs\\Settings.ini' % AddonsPath
+xml_sett = '%s\\addons\\Data\\Gzs\\PesFoxShader.xml' % AddonsPath
+icons_dir = '%s\\addons\\Data\\Gzs\\icons' % AddonsPath
+base_file_blend = '%s\\addons\\Data\\Gzs\\base_file.blend' % AddonsPath
 
 pes_diff_bin_data, IDoldname = [] , []
 eyeL_origin, eyeR_origin, mouth_origin = [0.02807705,0.1448301-0.00362,1.69668636147], [0.02754705,0.1446231-0.00362,1.69682636147], [-0.000365,0.1479722561,1.63275]
@@ -652,8 +652,8 @@ class FMDL_Scene_Open_Image(bpy.types.Operator, bpy_extras.io_utils.ImportHelper
 			fileName = filenames + '.dds'
 			TGAPath = os.path.join(dirpath, fileName)
 			filePath = TGAPath
-		mat_name = bpy.context.active_object.active_material.name
-		node_name = bpy.context.active_node.name
+		mat_name = context.active_object.active_material.name
+		node_name = context.active_node.name
 		if fileName in bpy.data.images:
 			bpy.data.materials[mat_name].node_tree.nodes[node_name].image = bpy.data.images[fileName]
 		else:
@@ -809,13 +809,14 @@ class FMDL_21_MT_Scene_Panel_FMDL_Export_Settings(bpy.types.Menu):
 	bl_label = "Export settings"
 
 	def draw(self, context):
-		self.layout.prop(context.active_object, 'fmdl_export_extensions_enabled')
-		row = self.layout.row()
-		row.prop(context.active_object, 'fmdl_export_loop_preservation')
-		row.enabled = context.active_object.fmdl_export_extensions_enabled
-		row = self.layout.row()
-		row.prop(context.active_object, 'fmdl_export_mesh_splitting')
-		row.enabled = context.active_object.fmdl_export_extensions_enabled
+		if context.active_object is not None:
+			self.layout.prop(context.active_object, 'fmdl_export_extensions_enabled')
+			row = self.layout.row()
+			row.prop(context.active_object, 'fmdl_export_loop_preservation')
+			row.enabled = context.active_object.fmdl_export_extensions_enabled
+			row = self.layout.row()
+			row.prop(context.active_object, 'fmdl_export_mesh_splitting')
+			row.enabled = context.active_object.fmdl_export_extensions_enabled
 
 
 class FMDL_Object_BoundingBox_Create(bpy.types.Operator):
@@ -1774,7 +1775,7 @@ class FMDL_21_PT_UIPanel(bpy.types.Panel):
 		this_icon = icons_collections["custom_icons"]["icon_0"].icon_id
 		row.label(text="Made by: MjTs-140914 / the4chancup", icon_value=this_icon)
 		row = box.row()
-		box.label(text="Blender version {0}.{1}.{2} (v1.93.4b)".format(major, minor, build) , icon="BLENDER")
+		box.label(text="Blender version {0}.{1}.{2} (v1.93.5b)".format(major, minor, build) , icon="BLENDER")
 		row = box.row()
 		row.operator("scene.operator", text="Start New Scene")
 		row = box.row()
@@ -1979,8 +1980,6 @@ class FMDL_Reload_Image(bpy.types.Operator):
 		for image in bpy.data.images:
 			if image.users:
 				image.reload()
-			else:
-				bpy.data.images.remove(image)
 		self.report({"INFO"}, "All image texture reloaded!")
 		return {'FINISHED'}
 	pass
@@ -2228,6 +2227,15 @@ class Tool_Main_Operator(bpy.types.Operator):
 			return {'FINISHED'}
 
 		if self.face_opname == "clr_file":
+			if context.scene.face_cnf == False:
+				self.report({"WARNING"}, "Face ID has change you need to export!")
+				return {'CANCELLED'}
+			if context.scene.hair_cnf == False:
+				self.report({"WARNING"}, "Hair ID has change you need to export!")
+				return {'CANCELLED'}
+			if context.scene.fpk_cnf == False:
+				self.report({"WARNING"}, "ID has change you need to create .fpk!")
+				return {'CANCELLED'}
 			pes_diff_bin_data.clear()
 			if os.path.isfile(packfpk):
 				os.remove(packfpk)
@@ -2366,7 +2374,6 @@ def register():
 
 	bpy.types.Object.fmdl_file = bpy.props.BoolProperty(name="Is FMDL file", options={'SKIP_SAVE'})
 	bpy.types.Object.fmdl_filename = bpy.props.StringProperty(name="FMDL filename", options={'SKIP_SAVE'})
-	bpy.types.Material.fmdl_material_parameter_active = bpy.props.IntProperty(name="FMDL_Material_Parameter_Name_List index", default=-1, options={'SKIP_SAVE'})
 	bpy.types.Object.fmdl_export_extensions_enabled = bpy.props.BoolProperty(name="Enable PES FMDL extensions",  default=True)
 	bpy.types.Object.fmdl_export_loop_preservation = bpy.props.BoolProperty(name="Preserve split vertices",   default=True)
 	bpy.types.Object.fmdl_export_mesh_splitting = bpy.props.BoolProperty(name="Autosplit overlarge meshes",   default=True)

@@ -79,8 +79,6 @@ def createFittingBoundingBox(context, meshObject):
 def importFmdl(context, fmdl, filename, importSettings = None):
 	UV_MAP_COLOR = 'UVMap'
 	UV_MAP_NORMALS = 'normal_map'
-	scn = bpy.context.scene
-	facepath = scn.face_path
 	def findTexture(texture, textureSearchPath):
 		textureFilename = texture.directory.replace('\\', '/').rstrip('/') + '/' + texture.filename.replace('\\', '/').lstrip('/')
 		textureFilenameComponents = tuple(filter(None, textureFilename.split('/')))
@@ -131,8 +129,7 @@ def importFmdl(context, fmdl, filename, importSettings = None):
 	def addTexture(blenderMaterial, textureRole, texture, textureIDs, uvMapColor, uvMapNormals, textureSearchPath,
 				   loadTextures):
 		identifier = (textureRole, texture)
-		dds_texture_face_path = facepath[:-29] + "/sourceimages/#windx11/" + texture.filename
-		dds_texture_face_path = dds_texture_face_path.replace('/', '\\')
+		texture_path = context.scene.face_path[:-29] + "\\sourceimages\\#windx11\\" + texture.filename
 		if identifier in textureIDs:
 			blenderTexture = bpy.data.textures[textureIDs[identifier]]
 		else:
@@ -152,7 +149,7 @@ def importFmdl(context, fmdl, filename, importSettings = None):
 			if loadTextures:
 				filename = findTexture(texture, textureSearchPath)
 				if filename == None:
-					blenderImage.filepath = dds_texture_face_path
+					blenderImage.filepath = texture_path
 				elif filename.lower().endswith('.ftex'):
 					blenderImage.filepath = filename
 					Ftex.blenderImageLoadFtex(blenderImage, bpy.app.tempdir)
