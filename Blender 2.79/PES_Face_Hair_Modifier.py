@@ -4,6 +4,8 @@ from bpy.props import *
 from Data import FmdlFile, Ftex, IO, PesSkeletonData, TiNA, PesFoxShader
 from configparser import ConfigParser
 from bpy.props import (IntProperty, BoolProperty, StringProperty, FloatProperty, CollectionProperty)
+from xml.dom import minidom
+from xml.dom.minidom import parse
 
 config = ConfigParser()
 icons_collections = {}
@@ -11,7 +13,7 @@ icons_collections = {}
 bl_info = {
 	"name": "PES Face/Hair Modifier",
 	"author": "the4chancup - MjTs-140914",
-	"version": (1, 93, 5),
+	"version": (1, 93, 6),
 	"blender": (2, 79, 0),
 	"api": 35853,
 	"location": "Under Scene Tab",
@@ -501,13 +503,6 @@ class FMDL_Scene_Extract_Fpk(bpy.types.Operator, bpy_extras.io_utils.ImportHelpe
 				self.report({"WARNING"}, "Oral Already Imported!!")
 		if self.pes_diff_bin:
 			pes_diff_bin_imp(pes_diff_fname)
-			try:
-				for meshname in ('mesh_id_face_1', 'mesh_id_face_3', 'mesh_id_face_5', 'mesh_id_face_6'):
-					if not bpy.data.objects[meshname].hide:
-						bpy.data.objects[meshname].hide = True
-			except:
-				pass
-
 			print("pes_diff.bin imported succesfully!")
 		self.report({"INFO"}, "Extract Face.fpk succesfully!")
 		return {'FINISHED'}
@@ -1765,7 +1760,7 @@ class Fmdl_UIPanel(bpy.types.Panel):
 		this_icon = icons_collections["custom_icons"]["icon_0"].icon_id
 		row.label(text="Made by: MjTs-140914 / the4chancup", icon_value=this_icon)
 		row = box.row()
-		box.label(text="This Tool Works with Only Blender v2.79 (v1.93.5b)", icon="BLENDER")
+		box.label(text="This Tool Works with Only Blender v2.79 (v1.93.6b)", icon="BLENDER")
 		row = box.row()
 		row.operator("primary.operator", text="Start New Scene").face_opname = "newscene"
 		row = box.row()
@@ -2159,11 +2154,6 @@ class Tool_Main_Operator(bpy.types.Operator):
 
 		if self.face_opname == "pes_diff_imp":
 			pes_diff_bin_imp(pes_diff_fname)
-			try:
-				for meshname in ('mesh_id_face_1', 'mesh_id_face_3', 'mesh_id_face_5', 'mesh_id_face_6'):
-					bpy.data.objects[meshname].hide = True
-			except:
-				pass
 			self.report({"INFO"}, "PES_DIFF.BIN Imported Succesfully!")
 			print("PES_DIFF.BIN Imported Succesfully!")
 			return {'FINISHED'}
@@ -2341,7 +2331,11 @@ def register():
 	bpy.types.Mesh.fmdl_alpha_enum = bpy.props.IntProperty(name="Alpha Enum", default=0, min=0, max=255, update=update_alpha_enum)
 	bpy.types.Mesh.fmdl_shadow_enum = bpy.props.IntProperty(name="Shadow Enum", default=0, min=0, max=255, update=update_shadow_enum)
 
-	bpy.types.Material.fox_shader = bpy.props.EnumProperty(name="Select Fox Shader", items=PesFoxShader.ShaderList, default="pes_3ddf_skin_face")
+	domData = parse(xml_sett)
+	shaders = [(shader.getAttribute("shader"), shader.getAttribute("shader"), "Technique Type: "+shader.getAttribute("technique")) 
+					for shader in domData.getElementsByTagName("FoxShader") if shader.getAttribute("shader")]
+	shaders.sort(reverse=0)
+	bpy.types.Material.fox_shader = bpy.props.EnumProperty(name="Select Fox Shader", items=shaders)
 	bpy.types.Material.fmdl_material_shader = bpy.props.StringProperty(name="Shader", default="pes_3ddf_skin_face", update=update_shader_list)
 	bpy.types.Material.fmdl_material_technique = bpy.props.StringProperty(name="Technique")
 	bpy.types.Material.fmdl_material_parameters = bpy.props.CollectionProperty(name="Material Parameters", type=FMDL_MaterialParameter)

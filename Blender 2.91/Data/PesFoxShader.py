@@ -4,25 +4,6 @@ from xml.dom.minidom import Node
 from mathutils import Vector
 import random
 
-			#format: ('shader', 'shader', 'technique')
-ShaderList = [('pes_3ddf_skin_face', 'pes_3ddf_skin_face', 'pes3DDF_Skin_Face'),
-			('pes3ddc_wet', 'pes3ddc_wet', 'pes3DDC_Wet'), 
-            ('pes_3ddc_wet', 'pes_3ddc_wet', 'pes3DDC_Wet'), 
-			('pes_3ddc_adjust', 'pes_3ddc_adjust', 'pes3DDC_Adjust_100'),
-			('fox3ddf_blin_4mt_subnorm', 'fox3ddf_blin_4mt_subnorm', 'fox3DDF_Blin_SubNorm_4MT'),
-			('fox3ddf_blin', 'fox3ddf_blin', 'fox3DDF_Blin'),
-			('fox3ddf_blin_ln', 'fox3ddf_blin_ln', 'fox3DDF_Blin_LNM'),
-			('fox3dfw_blin_ln', 'fox3dfw_blin_ln', 'fox3DDF_Blin_LNM'),
-			('pes_3ddf_hair2_nrmuv', 'pes_3ddf_hair2_nrmuv', 'pes3DDF_Hair2_NrmUV'),
-            ('pes_3ddf_hair2', 'pes_3ddf_hair2', 'pes3DDF_Hair2'),
-			('pes_3dfw_eyeocclusion', 'pes_3dfw_eyeocclusion', 'pes3DFW_EyeOcclusion'),
-			('fox_3ddf_ggx_nrmuv', 'fox_3ddf_ggx_nrmuv', 'fox3DDF_GGX'),
-			('pes_3dfw_glass2', 'pes_3dfw_glass2', 'pes3DFW_Glass2'),
-			('pes_3dfw_glass3', 'pes_3dfw_glass3', 'pes3DFW_Glass3'),
-			('pes_3dfw_const_srgb_bill', 'pes_3dfw_const_srgb_bill', 'pes3DFW_Constant_SRGB_Bill')
-			   
-]
-
 AlphaEnum = [('Unknown', 'Unknown', 'Unknown'),
 			('0', 'No Alpha', 'No Alpha'),
 			('16', 'Glass', 'Glass'),
@@ -33,7 +14,7 @@ AlphaEnum = [('Unknown', 'Unknown', 'Unknown'),
 			('81', 'Decal2', 'Decal2'),
 			('112', 'Eyelash', 'Eyelash'),
 			('113', 'Eyelash2', 'Eyelash2'),
-			('148', 'Parasite', 'Parasite'),
+			('128', 'Parasite', 'Parasite'),
 			('140', 'Alpha2', 'Alpha2'),
 			('160', 'Alpha', 'Alpha'),
 			('192', 'Unknown OMBS', 'Unknown OMBS'),
@@ -110,8 +91,10 @@ def setShader(self, context):
 			fox = domData.getElementsByTagName("FoxShader")
 			for shader in fox:
 				shaderfox = shader.getAttribute("shader")
+				technique = shader.getAttribute("technique")		
 				if shaderfox == getshader:
 					bpy.data.materials[materials_name].fmdl_material_shader = shaderfox
+					bpy.data.materials[materials_name].fmdl_material_technique = technique	
 					foxshader = shader.getElementsByTagName("Parameter")
 					for fox_shader in foxshader:
 						if fox_shader.getAttribute("technique"):
