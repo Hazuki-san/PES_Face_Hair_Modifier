@@ -15,7 +15,7 @@ icons_collections = {}
 bl_info = {
 	"name": "PES Face/Hair Modifier",
 	"author": "the4chancup - MjTs-140914",
-	"version": (1, 93, 6),
+	"version": (1, 93, 7),
 	"blender": (2, 80, 0),
 	"api": 35853,
 	"location": "Under Scene Tab",
@@ -1330,20 +1330,21 @@ class FMDL_21_PT_Material_Panel(bpy.types.Panel):
 
 	def draw(self, context):
 		material = context.material
-		layout = self.layout
-		mainColumn = layout.column(align=True)
-		box = layout.box()
-		mainColumn = box.row(align=0)
+		mainColumn = self.layout.column()
+		mainColumn=mainColumn.row()
 		mainColumn.prop(material, "fox_shader", text="PES Fox Shader")
 		mainColumn.operator("shader.operator", text="", icon="SEQ_SEQUENCER")
-		mainColumn = box.row(align=0)
+		mainColumn = self.layout.column()
+		mainColumn=mainColumn.row()
 		mainColumn.prop(material, "fmdl_material_shader")
-		mainColumn = box.row(align=0)
+		mainColumn = self.layout.column()
+		mainColumn=mainColumn.row()
 		mainColumn.prop(material, "fmdl_material_technique")
-		mainColumn = box.row(align=0)
-		mainColumn.separator()
+		mainColumn = self.layout.column()
+		mainColumn=mainColumn.row()
 		mainColumn.label(text="Material Parameters")
-		mainColumn = box.row(align=0)
+		mainColumn = self.layout.column()
+		mainColumn=mainColumn.row()
 		parameterListRow = mainColumn.row()
 		parameterListRow.template_list(
 			FMDL_UL_material_parameter_list.__name__,
@@ -1360,7 +1361,8 @@ class FMDL_21_PT_Material_Panel(bpy.types.Panel):
 		listButtonColumn.separator()
 		listButtonColumn.operator("fmdl.material_parameter_moveup", icon='TRIA_UP', text="")
 		listButtonColumn.operator("fmdl.material_parameter_movedown", icon='TRIA_DOWN', text="")
-		mainColumn = box.row(align=0)
+		mainColumn = self.layout.column()
+		mainColumn=mainColumn.row()
 		if 0 <= material.fmdl_material_parameter_active < len(material.fmdl_material_parameters):
 			valuesColumn = mainColumn.column()
 			parameter = material.fmdl_material_parameter_active
@@ -1368,6 +1370,7 @@ class FMDL_21_PT_Material_Panel(bpy.types.Panel):
 				material.fmdl_material_parameters[parameter],
 				"parameters"
 			)
+	pass
 
 
 class FMDL_Texture_Load_Ftex(bpy.types.Operator):
@@ -1423,20 +1426,21 @@ class FMDL_21_PT_Texture_Panel(bpy.types.Panel, bpy.types.AnyType):
 
 	def draw(self, context):
 		node = context.active_node
-		row = self.layout.row()
-		box = self.layout.box()
-		box.alignment = 'CENTER'
-		row = box.row(align=0)
-		row.label(text="Image File")
-		row.operator(FMDL_Scene_Open_Image.bl_idname, icon="FILE_FOLDER")
-		row.operator("edit.operator", text="", icon="FILE_IMAGE")
-		row.operator("reload.operator", text="", icon="FILE_REFRESH")
-		row = box.row(align=0)
-		row.prop(node, "fmdl_texture_role", text="Role")
-		row = box.row(align=0)
-		row.prop(node, "fmdl_texture_filename", text="Filename")
-		row = box.row(align=0)
-		row.prop(node, "fmdl_texture_directory", text="Directory")
+		mainColumn = self.layout.column()
+		mainColumn=mainColumn.row()
+		mainColumn.label(text="Image File")
+		mainColumn.operator(FMDL_Scene_Open_Image.bl_idname, icon="FILE_FOLDER")
+		mainColumn.operator("edit.operator", text="", icon="FILE_IMAGE")
+		mainColumn.operator("reload.operator", text="", icon="FILE_REFRESH")
+		mainColumn = self.layout.column()
+		mainColumn=mainColumn.row()
+		mainColumn.prop(node, "fmdl_texture_role", text="Role")
+		mainColumn = self.layout.column()
+		mainColumn=mainColumn.row()
+		mainColumn.prop(node, "fmdl_texture_filename", text="Filename")
+		mainColumn = self.layout.column()
+		mainColumn=mainColumn.row()
+		mainColumn.prop(node, "fmdl_texture_directory", text="Directory")
 
 
 class FMDL_MaterialParameter(bpy.types.PropertyGroup):
@@ -1767,7 +1771,7 @@ class FMDL_21_PT_UIPanel(bpy.types.Panel):
 		this_icon = icons_collections["custom_icons"]["icon_0"].icon_id
 		row.label(text="Made by: MjTs-140914 / the4chancup", icon_value=this_icon)
 		row = box.row()
-		box.label(text="Blender version {0}.{1}.{2} (v1.93.6b)".format(major, minor, build) , icon="BLENDER")
+		box.label(text="Blender version {0}.{1}.{2} (v1.93.7b)".format(major, minor, build) , icon="BLENDER")
 		row = box.row()
 		row.operator("scene.operator", text="Start New Scene")
 		row = box.row()
