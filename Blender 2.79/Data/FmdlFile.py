@@ -563,8 +563,8 @@ class FmdlFile:
 				if assignments[i] != None:
 					raise InvalidFmdl("Invalid double mesh group assignment: mesh %d already assigned" % i)
 				assignments[i] = meshGroupID
-			if meshGroups[meshGroupID].boundingBox != None and meshGroups[meshGroupID].boundingBox != boundingBoxes[boundingBoxID]:
-				raise InvalidFmdl("Invalid double bounding box assignment for mesh group %d" % meshGroupID)
+			#if meshGroups[meshGroupID].boundingBox != None and meshGroups[meshGroupID].boundingBox != boundingBoxes[boundingBoxID]:
+				#raise InvalidFmdl("Invalid double bounding box assignment for mesh group %d" % meshGroupID)
 			meshGroups[meshGroupID].boundingBox = boundingBoxes[boundingBoxID]
 		
 		if None in assignments:
