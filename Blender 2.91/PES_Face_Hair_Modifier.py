@@ -505,6 +505,9 @@ class FMDL_Scene_Extract_Fpk(bpy.types.Operator, bpy_extras.io_utils.ImportHelpe
 	pes_diff_bin : bpy.props.BoolProperty(name = "Import face_diff.bin", default = True)
 	fixMeshsmooth : bpy.props.BoolProperty(name = "FIX-Smooth Meshes", default = True)
 	
+	import_label = "PES FPK (.fpk)"
+	
+	filename_ext = ""
 	filter_glob : bpy.props.StringProperty(default="*.fpk", options={'HIDDEN'})
 
 	@classmethod
