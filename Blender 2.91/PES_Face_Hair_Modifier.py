@@ -15,9 +15,8 @@ icons_collections = {}
 bl_info = {
 	"name": "PES Face/Hair Modifier",
 	"author": "the4chancup - MjTs-140914",
-	"version": (1, 93, 7),
+	"version": (1, 93, 8),
 	"blender": (2, 80, 0),
-	"api": 35853,
 	"location": "Under Scene Tab",
 	"description": "PES Face/Hair Modifier",
 	"warning": "",
@@ -1771,7 +1770,7 @@ class FMDL_21_PT_UIPanel(bpy.types.Panel):
 		this_icon = icons_collections["custom_icons"]["icon_0"].icon_id
 		row.label(text="Made by: MjTs-140914 / the4chancup", icon_value=this_icon)
 		row = box.row()
-		box.label(text="Blender version {0}.{1}.{2} (v1.93.7b)".format(major, minor, build) , icon="BLENDER")
+		box.label(text="Blender version {0}.{1}.{2} (v1.93.8b)".format(major, minor, build) , icon="BLENDER")
 		row = box.row()
 		row.operator("scene.operator", text="Start New Scene")
 		row = box.row()
