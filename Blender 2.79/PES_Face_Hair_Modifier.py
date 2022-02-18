@@ -119,7 +119,7 @@ def pes_diff_bin_imp(pes_diff_fname):
 
 
 		if not os.path.isfile(oralpath): 
-			bpy.data.objects['mouth'].location[0] = (m_pos[0]) - mouth_origin[0]
+			bpy.data.objects['mouth'].location[0] = (m_pos[0]) + mouth_origin[0]
 			bpy.data.objects['mouth'].location[1] = (m_pos[2]*-1) + mouth_origin[1]
 			bpy.data.objects['mouth'].location[2] = (m_pos[1]) + mouth_origin[2]
 
@@ -155,8 +155,8 @@ def pes_diff_bin_exp(pes_diff_fname):
 	if header_string == "FACE":
 
 		if not os.path.isfile(oralpath): 
-			m0 = (bpy.data.objects['mouth'].location[0] + mouth_origin[0])
-			m2 = (bpy.data.objects['mouth'].location[1] + mouth_origin[1])*-1
+			m0 = (bpy.data.objects['mouth'].location[0] - mouth_origin[0])
+			m2 = (bpy.data.objects['mouth'].location[1] - mouth_origin[1])*-1
 			m1 = (bpy.data.objects['mouth'].location[2] - mouth_origin[2])
 
 		rx = (bpy.data.objects['eyeR'].location[0] - eyeR_origin[0])*-1
