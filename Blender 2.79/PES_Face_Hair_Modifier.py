@@ -35,7 +35,10 @@ icons_dir = '%s\\addons\\Data\\Gzs\\icons' % AddonsPath
 base_file_blend = '%s\\addons\\Data\\Gzs\\base_file.blend' % AddonsPath
 
 pes_diff_bin_data, IDoldname = [] , []
-eyeL_origin, eyeR_origin, mouth_origin = [0.02807705,0.1448301-0.00362,1.69668636147], [0.02754705,0.1446231-0.00362,1.69682636147], [-0.000365,0.1479722561,1.63275]
+
+eyeL_origin = [0.027999000623822212,0.1379556953907013,1.6967898607254028]
+eyeR_origin = [-0.028001001104712486,0.1379556953907013,1.6967898607254028]
+mouth_origin = [0.0,-0.141919,1.6314]
 
 def scene_objects():
 	inner_path = 'Object'
@@ -66,15 +69,15 @@ def pes_diff_bin_imp(pes_diff_fname):
 
 
 		if not os.path.isfile(oralpath): 
-			bpy.data.objects['mouth'].location[0] = (m_pos[0]) - mouth_origin[0]
+			bpy.data.objects['mouth'].location[0] = (m_pos[0]) + mouth_origin[0]
 			bpy.data.objects['mouth'].location[1] = (m_pos[2]*-1) - mouth_origin[1]
 			bpy.data.objects['mouth'].location[2] = (m_pos[1]) + mouth_origin[2]
 
-		bpy.data.objects['eyeR'].location[0] = (eyes_posR[2] * -1) - eyeR_origin[0]
+		bpy.data.objects['eyeR'].location[0] = (eyes_posR[2] * -1) + eyeR_origin[0]
 		bpy.data.objects['eyeR'].location[1] = (eyes_posR[1]) - eyeR_origin[1]
 		bpy.data.objects['eyeR'].location[2] = (eyes_posR[0]) + eyeR_origin[2]
 
-		bpy.data.objects['eyeL'].location[0] = (eyes_posL[2]*-1) + eyeL_origin[0]
+		bpy.data.objects['eyeL'].location[0] = (eyes_posL[2] * -1) + eyeL_origin[0]
 		bpy.data.objects['eyeL'].location[1] = (eyes_posL[1]) - eyeL_origin[1]
 		bpy.data.objects['eyeL'].location[2] = (eyes_posL[0]) + eyeL_origin[2]
 
@@ -102,7 +105,7 @@ def pes_diff_bin_exp(pes_diff_fname):
 			m2 = (bpy.data.objects['mouth'].location[1] +  mouth_origin[1])*-1
 			m1 = (bpy.data.objects['mouth'].location[2] - mouth_origin[2])
 
-		rx = (bpy.data.objects['eyeR'].location[0] + eyeR_origin[0])*-1
+		rx = (bpy.data.objects['eyeR'].location[0] - eyeR_origin[0])*-1
 		ry = (bpy.data.objects['eyeR'].location[1] + eyeR_origin[1])
 		rz = (bpy.data.objects['eyeR'].location[2] - eyeR_origin[2])
 		
@@ -318,13 +321,13 @@ def exportFmdlfile(fileName, meshID, objName):
 	return 1
 
 def is_number(n):
-    is_number = True
-    try:
-        num = complex(n)
-        is_number = num == num
-    except ValueError:
-        is_number = False
-    return is_number
+	is_number = True
+	try:
+		num = complex(n)
+		is_number = num == num
+	except ValueError:
+		is_number = False
+	return is_number
 
 def oldIDread():
 	scn = bpy.context.scene
