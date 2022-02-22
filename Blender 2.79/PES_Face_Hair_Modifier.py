@@ -36,17 +36,38 @@ base_file_blend = '%s\\addons\\Data\\Gzs\\base_file.blend' % AddonsPath
 
 pes_diff_bin_data, IDoldname = [] , []
 
+"""
+Origin Data:
+[value 1, value 3, value 2]
+"""
+
+#block 2
 eyeL_origin = [0.027999000623822212,0.1379556953907013,1.6967898607254028]
 eyeR_origin = [-0.028001001104712486,0.1379556953907013,1.6967898607254028]
+
 eyeLidTL_origin = [0.027999000623822212,0.13795685768127441,1.6967850923538208]
 eyeLidTR_origin = [-0.028001001104712486,0.13795651495456696,1.6967864036560059]
+
 eyeLidBL_origin = [0.027999000623822212,0.1379571110010147,1.6957852840423584]
 eyeLidBR_origin = [-0.028001001104712486,0.13795551657676697,1.6957849264144897]
+
+lipTR_origin = [-0.015548476949334145,0.1719813495874405,1.6342241764068604] #22
+lipSR_origin = [-0.02358921244740486,0.1614714413881302,1.6296896934509277] #23
+lipBR_origin = [-0.018454359844326973,0.1641380339860916,1.624387264251709] #31
+
+lipTC_origin = [0,0.17718298733234406,1.6353899240493774] #27
+lipBC_origin = [0,0.17281349003314972,1.6220245361328125] #33
+
+lipSL_origin = [0.023588845506310463,0.16147050261497498,1.6296896934509277] #24
+lipTL_origin = [0.015548476949334145,0.1719813495874405,1.6342241764068604] #25
+lipBL_origin = [0.018454359844326973,0.1641380339860916,1.624387264251709] #30
+
+#block 3
 mouth_origin = [0.0,-0.141919,1.6314]
 
 def scene_objects():
 	inner_path = 'Object'
-	for ob_name in ('eyeL', 'eyeLidBR', 'eyeR', 'mouth'):
+	for ob_name in ('eyeL', 'eyeLidBR', 'eyeR', 'mouth', 'mouthLipBC', 'mouthLipBL', 'mouthLipBR', 'mouthLipSL', 'mouthLipSR', 'mouthLipTC', 'mouthLipTL', 'mouthLipTR'):
 		if not ob_name in bpy.data.objects:
 			bpy.ops.wm.append(filepath=os.path.join(base_file_blend, inner_path, ob_name), directory=os.path.join(base_file_blend, inner_path), filename=ob_name)
 
@@ -114,6 +135,22 @@ def pes_diff_bin_imp(pes_diff_fname):
 		eyeLidT_posR = unpack("3f", pes_diff_data0.read(12))
 		pes_diff_data0.seek(0xE0 + (0x10 * 12))
 		eyeLidT_posL = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 22))
+		lipTop_posR = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 23))
+		lipSid_posR = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 24))
+		lipSid_posL = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 25))
+		lipTop_posL = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 27))
+		lipTop_posC = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 30))
+		lipBot_posL = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 31))
+		lipBot_posR = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 33))
+		lipBot_posC = unpack("3f", pes_diff_data0.read(12))
 
 		scn.eyes_size = eyes_size[0]
 
@@ -134,6 +171,33 @@ def pes_diff_bin_imp(pes_diff_fname):
 		bpy.data.objects['eyeLidBR'].location[0] = (eyeLidB_posR[2] * -1) + eyeLidBR_origin[0]
 		bpy.data.objects['eyeLidBR'].location[1] = (eyeLidB_posR[1]) - eyeLidBR_origin[1]
 		bpy.data.objects['eyeLidBR'].location[2] = (eyeLidB_posR[0]) + eyeLidBR_origin[2]
+
+		bpy.data.objects['mouthLipBR'].location[0] = (lipBot_posR[2] * -1) + lipBR_origin[0]
+		bpy.data.objects['mouthLipBR'].location[1] = (lipBot_posR[1]) - lipBR_origin[1]
+		bpy.data.objects['mouthLipBR'].location[2] = (lipBot_posR[0]) + lipBR_origin[2]
+		bpy.data.objects['mouthLipSR'].location[0] = (lipSid_posR[2] * -1) + lipSR_origin[0]
+		bpy.data.objects['mouthLipSR'].location[1] = (lipSid_posR[1]) - lipSR_origin[1]
+		bpy.data.objects['mouthLipSR'].location[2] = (lipSid_posR[0]) + lipSR_origin[2]
+		bpy.data.objects['mouthLipTR'].location[0] = (lipTop_posR[2] * -1) + lipTR_origin[0]
+		bpy.data.objects['mouthLipTR'].location[1] = (lipTop_posR[1]) - lipTR_origin[1]
+		bpy.data.objects['mouthLipTR'].location[2] = (lipTop_posR[0]) + lipTR_origin[2]
+
+		bpy.data.objects['mouthLipTC'].location[0] = (lipTop_posC[2] * -1) + lipTC_origin[0]
+		bpy.data.objects['mouthLipTC'].location[1] = (lipTop_posC[1]) - lipTC_origin[1]
+		bpy.data.objects['mouthLipTC'].location[2] = (lipTop_posC[0]) + lipTC_origin[2]
+		bpy.data.objects['mouthLipBC'].location[0] = (lipBot_posC[2] * -1) + lipBC_origin[0]
+		bpy.data.objects['mouthLipBC'].location[1] = (lipBot_posC[1]) - lipBC_origin[1]
+		bpy.data.objects['mouthLipBC'].location[2] = (lipBot_posC[0]) + lipBC_origin[2]
+
+		bpy.data.objects['mouthLipBL'].location[0] = (lipBot_posL[2] * -1) + lipBL_origin[0]
+		bpy.data.objects['mouthLipBL'].location[1] = (lipBot_posL[1]) - lipBL_origin[1]
+		bpy.data.objects['mouthLipBL'].location[2] = (lipBot_posL[0]) + lipBL_origin[2]
+		bpy.data.objects['mouthLipSL'].location[0] = (lipSid_posL[2] * -1) + lipSL_origin[0]
+		bpy.data.objects['mouthLipSL'].location[1] = (lipSid_posL[1]) - lipSL_origin[1]
+		bpy.data.objects['mouthLipSL'].location[2] = (lipSid_posL[0]) + lipSL_origin[2]
+		bpy.data.objects['mouthLipTL'].location[0] = (lipTop_posL[2] * -1) + lipTL_origin[0]
+		bpy.data.objects['mouthLipTL'].location[1] = (lipTop_posL[1]) - lipTL_origin[1]
+		bpy.data.objects['mouthLipTL'].location[2] = (lipTop_posL[0]) + lipTL_origin[2]
 
 		bpy.data.objects['eyeR'].scale[0] = eyes_size[0]*1.2
 		bpy.data.objects['eyeR'].scale[1] = eyes_size[1]*1.2
@@ -171,6 +235,33 @@ def pes_diff_bin_exp(pes_diff_fname):
 		elbry = (bpy.data.objects['eyeLidBR'].location[1] + eyeLidBR_origin[1])
 		elbrz = (bpy.data.objects['eyeLidBR'].location[2] - eyeLidBR_origin[2])
 
+		lipbrx = (bpy.data.objects['mouthLipBR'].location[0] - lipBR_origin[0])*-1
+		lipbry = (bpy.data.objects['mouthLipBR'].location[1] + lipBR_origin[1])
+		lipbrz = (bpy.data.objects['mouthLipBR'].location[2] - lipBR_origin[2])
+		lipsrx = (bpy.data.objects['mouthLipSR'].location[0] - lipSR_origin[0])*-1
+		lipsry = (bpy.data.objects['mouthLipSR'].location[1] + lipSR_origin[1])
+		lipsrz = (bpy.data.objects['mouthLipSR'].location[2] - lipSR_origin[2])
+		liptrx = (bpy.data.objects['mouthLipTR'].location[0] - lipTR_origin[0])*-1
+		liptry = (bpy.data.objects['mouthLipTR'].location[1] + lipTR_origin[1])
+		liptrz = (bpy.data.objects['mouthLipTR'].location[2] - lipTR_origin[2])
+
+		liptcx = (bpy.data.objects['mouthLipTC'].location[0] - lipTC_origin[0])*-1
+		liptcy = (bpy.data.objects['mouthLipTC'].location[1] + lipTC_origin[1])
+		liptcz = (bpy.data.objects['mouthLipTC'].location[2] - lipTC_origin[2])
+		lipbcx = (bpy.data.objects['mouthLipBC'].location[0] - lipBC_origin[0])*-1
+		lipbcy = (bpy.data.objects['mouthLipBC'].location[1] + lipBC_origin[1])
+		lipbcz = (bpy.data.objects['mouthLipBC'].location[2] - lipBC_origin[2])
+
+		lipblx = (bpy.data.objects['mouthLipBL'].location[0] - lipBL_origin[0])*-1
+		lipbly = (bpy.data.objects['mouthLipBL'].location[1] + lipBL_origin[1])
+		lipblz = (bpy.data.objects['mouthLipBL'].location[2] - lipBL_origin[2])
+		lipslx = (bpy.data.objects['mouthLipSL'].location[0] - lipSL_origin[0])*-1
+		lipsly = (bpy.data.objects['mouthLipSL'].location[1] + lipSL_origin[1])
+		lipslz = (bpy.data.objects['mouthLipSL'].location[2] - lipSL_origin[2])
+		liptlx = (bpy.data.objects['mouthLipTL'].location[0] - lipTL_origin[0])*-1
+		liptly = (bpy.data.objects['mouthLipTL'].location[1] + lipTL_origin[1])
+		liptlz = (bpy.data.objects['mouthLipTL'].location[2] - lipTL_origin[2])
+
 		bpy.data.objects['eyeR'].scale[0] = scn.eyes_size*1.2
 		bpy.data.objects['eyeR'].scale[1] = scn.eyes_size*1.2
 		bpy.data.objects['eyeR'].scale[2] = scn.eyes_size*1.2
@@ -194,6 +285,22 @@ def pes_diff_bin_exp(pes_diff_fname):
 		pes_diff_data.write(struct.pack('3f', lz, ly, lx))  # Write eye Left
 		pes_diff_data.seek(0xE0 + (0x10 * 9))
 		pes_diff_data.write(struct.pack('3f', elbrz, elbry, elbrx)) # Write bottom right eyelid
+		pes_diff_data.seek(0xE0 + (0x10 * 22))
+		pes_diff_data.write(struct.pack('3f', liptrz, liptry, liptrx)) # Write lip top right
+		pes_diff_data.seek(0xE0 + (0x10 * 23))
+		pes_diff_data.write(struct.pack('3f', lipsrz, lipsry, lipsrx)) # Write lip side right
+		pes_diff_data.seek(0xE0 + (0x10 * 24))
+		pes_diff_data.write(struct.pack('3f', lipslz, lipsly, lipslx)) # Write lip side left
+		pes_diff_data.seek(0xE0 + (0x10 * 25))
+		pes_diff_data.write(struct.pack('3f', liptlz, liptly, liptlx)) # Write lip top left
+		pes_diff_data.seek(0xE0 + (0x10 * 27))
+		pes_diff_data.write(struct.pack('3f', liptcz, liptcy, liptcx)) # Write lip top centre
+		pes_diff_data.seek(0xE0 + (0x10 * 30))
+		pes_diff_data.write(struct.pack('3f', lipblz, lipbly, lipblx)) # Write lip bottom left
+		pes_diff_data.seek(0xE0 + (0x10 * 31))
+		pes_diff_data.write(struct.pack('3f', lipbrz, lipbry, lipbrx)) # Write lip bottom right
+		pes_diff_data.seek(0xE0 + (0x10 * 33))
+		pes_diff_data.write(struct.pack('3f', lipbcz, lipbcy, lipbcx)) # Write lip bottom centre
 		pes_diff_data.flush()
 		pes_diff_data.close()
 
