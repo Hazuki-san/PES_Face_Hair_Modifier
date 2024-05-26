@@ -12,7 +12,7 @@ icons_collections = {}
 
 bl_info = {
 	"name": "PES Face/Hair Modifier",
-	"author": "the4chancup - MjTs-140914",
+	"author": "the4chancup - MjTs-140914 # fucked up edition by aob",
 	"version": (1, 93, 7),
 	"blender": (2, 79, 0),
 	"api": 35853,
@@ -42,32 +42,46 @@ Origin Data:
 """
 
 #block 2
-eyeL_origin = [0.027999000623822212,0.1379556953907013,1.6967898607254028]
-eyeR_origin = [-0.028001001104712486,0.1379556953907013,1.6967898607254028]
-
-eyeLidTL_origin = [0.027999000623822212,0.13795685768127441,1.6967850923538208]
-eyeLidTR_origin = [-0.028001001104712486,0.13795651495456696,1.6967864036560059]
-
-eyeLidBL_origin = [0.027999000623822212,0.1379571110010147,1.6957852840423584]
-eyeLidBR_origin = [-0.028001001104712486,0.13795551657676697,1.6957849264144897]
-
+browOR_origin = [-0.04129030182957649,0.15725071728229523,1.7149097919464111] # 1
+browIR_origin = [-0.015733100473880768,0.17178072035312653,1.7129497528076172] # 2
+browIL_origin = [0.015733100473880768,0.171781986951828,1.7129499912261963] # 3
+browOL_origin = [0.04129030182957649,0.1572519987821579,1.7149099111557007] # 4
+orbiiR_origin = [-0.028036199510097504, 0.15178267657756805, 1.6865698099136353] # 5
+orbiiL_origin = [0.028033999726176262, 0.1517850011587143, 1.6865699291229248] # 6
+eyeL_origin = [0.027999000623822212,0.1379556953907013,1.6967898607254028] # 7
+eyeR_origin = [-0.028001001104712486,0.1379556953907013,1.6967898607254028] # 8
+eyeLidBR_origin = [-0.028001001104712486,0.13795551657676697,1.6957849264144897] # 9
+eyeLidBL_origin = [0.027999000623822212,0.1379571110010147,1.6957852840423584] # 10
+eyeLidTR_origin = [-0.028001001104712486,0.13795651495456696,1.6967864036560059] # 11
+eyeLidTL_origin = [0.027999000623822212,0.13795685768127441,1.6967850923538208] # 12
+glabella_origin = [9.99999993922529e-09,0.16966600716114044,1.7037800550460815] # 13
+noseWR_origin = [-0.015319599770009518, 0.1764719933271408, 1.6602998971939087] # 14
+noseWL_origin = [0.015319700352847576, 0.1764719933271408, 1.6602998971939087] # 15
+cheekR_origin = [-0.042531099170446396, 0.15263600647449493, 1.662310004234314] # 16
+nasolR_origin = [-0.021999899297952652, 0.16555863618850708,1.6492698192596436] # 17
+nasolL_origin = [0.021999899297952652, 0.16555863618850708,1.6492698192596436] # 18
+cheekL_origin = [0.042531099170446396, 0.15263600647449493, 1.662310004234314] # 19
+cheekSR_origin = [-0.04786809906363487, 0.13958200812339783, 1.6214900016784668] # 20
+cheekSL_origin = [0.04786809906363487, 0.13958200812339783, 1.6214900016784668] # 21
 lipTR_origin = [-0.015548476949334145,0.1719813495874405,1.6342241764068604] #22
 lipSR_origin = [-0.02358921244740486,0.1614714413881302,1.6296896934509277] #23
-lipBR_origin = [-0.018454359844326973,0.1641380339860916,1.624387264251709] #31
-
-lipTC_origin = [0,0.17718298733234406,1.6353899240493774] #27
-lipBC_origin = [0,0.17281349003314972,1.6220245361328125] #33
-
 lipSL_origin = [0.023588845506310463,0.16147050261497498,1.6296896934509277] #24
 lipTL_origin = [0.015548476949334145,0.1719813495874405,1.6342241764068604] #25
+nose_origin = [9.99999993922529e-09, 0.17634598910808563, 1.6863199472427368] # 26
+lipTC_origin = [0,0.17718298733234406,1.6353899240493774] #27
+lipVol_origin = [-0.0, 0.1771789938211441, 1.6346099376678467] # 28
+jaw_origin = [-9.999999974752427e-07, 0.07954826205968857, 1.636909008026123] # 29
 lipBL_origin = [0.018454359844326973,0.1641380339860916,1.624387264251709] #30
+lipBR_origin = [-0.018454359844326973,0.1641380339860916,1.624387264251709] #31
+doublechin_origin = [9.99999993922529e-09, 0.14202357828617096, 1.5815798044204712] # 32
+lipBC_origin = [0,0.17281349003314972,1.6220245361328125] #33
 
-#block 3
+#block 1
 mouth_origin = [0.0,-0.141919,1.6314]
 
 def scene_objects():
 	inner_path = 'Object'
-	for ob_name in ('eyeL', 'eyeLidBR', 'eyeR', 'mouth', 'mouthLipBC', 'mouthLipBL', 'mouthLipBR', 'mouthLipSL', 'mouthLipSR', 'mouthLipTC', 'mouthLipTL', 'mouthLipTR'):
+	for ob_name in ('noseWR', 'noseWL', 'cheekR', 'nasolR', 'nasolL', 'cheekL', 'cheekSR', 'cheekSL', 'nose', 'lipVol', 'jaw', 'doublechin', 'glabella', 'browOR', 'browIR', 'browIL', 'browOL', 'eyeL', 'eyeLidBL', 'eyeLidBR', 'eyeLidTL', 'eyeLidTR' 'eyeR', 'mouth', 'mouthLipBC', 'mouthLipBL', 'mouthLipBR', 'mouthLipSL', 'mouthLipSR', 'mouthLipTC', 'mouthLipTL', 'mouthLipTR', 'orbiiR', 'orbiiL'):
 		if not ob_name in bpy.data.objects:
 			bpy.ops.wm.append(filepath=os.path.join(base_file_blend, inner_path, ob_name), directory=os.path.join(base_file_blend, inner_path), filename=ob_name)
 
@@ -123,6 +137,18 @@ def pes_diff_bin_imp(pes_diff_fname):
 			33: "Bottom center lip position (skf_lip_b_c)",
 		"""
 
+		pes_diff_data0.seek(0xE0 + (0x10 * 1))
+		browO_posR = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 2))
+		browI_posR = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 3))
+		browI_posL = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 4))
+		browO_posL = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 5))
+		orbii_posR = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 6))
+		orbii_posL = unpack("3f", pes_diff_data0.read(12))
 		pes_diff_data0.seek(0xE0 + (0x10 * 7))
 		eyes_posR = unpack("3f", pes_diff_data0.read(12))
 		pes_diff_data0.seek(0xE0 + (0x10 * 8))
@@ -135,6 +161,24 @@ def pes_diff_bin_imp(pes_diff_fname):
 		eyeLidT_posR = unpack("3f", pes_diff_data0.read(12))
 		pes_diff_data0.seek(0xE0 + (0x10 * 12))
 		eyeLidT_posL = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 13))
+		glabella_pos = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 14))
+		noseW_posR = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 15))
+		noseW_posL = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 16))
+		cheek_posR = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 17))
+		nasol_posR = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 18))
+		nasol_posL = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 19))
+		cheek_posL = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 20))
+		cheekS_posR = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 21))
+		cheekS_posL = unpack("3f", pes_diff_data0.read(12))
 		pes_diff_data0.seek(0xE0 + (0x10 * 22))
 		lipTop_posR = unpack("3f", pes_diff_data0.read(12))
 		pes_diff_data0.seek(0xE0 + (0x10 * 23))
@@ -143,12 +187,20 @@ def pes_diff_bin_imp(pes_diff_fname):
 		lipSid_posL = unpack("3f", pes_diff_data0.read(12))
 		pes_diff_data0.seek(0xE0 + (0x10 * 25))
 		lipTop_posL = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 26))
+		nose_pos = unpack("3f", pes_diff_data0.read(12))
 		pes_diff_data0.seek(0xE0 + (0x10 * 27))
 		lipTop_posC = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 28))
+		lipVol_pos = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 29))
+		jaw_pos = unpack("3f", pes_diff_data0.read(12))
 		pes_diff_data0.seek(0xE0 + (0x10 * 30))
 		lipBot_posL = unpack("3f", pes_diff_data0.read(12))
 		pes_diff_data0.seek(0xE0 + (0x10 * 31))
 		lipBot_posR = unpack("3f", pes_diff_data0.read(12))
+		pes_diff_data0.seek(0xE0 + (0x10 * 32))
+		doubleC_pos = unpack("3f", pes_diff_data0.read(12))
 		pes_diff_data0.seek(0xE0 + (0x10 * 33))
 		lipBot_posC = unpack("3f", pes_diff_data0.read(12))
 
@@ -159,6 +211,30 @@ def pes_diff_bin_imp(pes_diff_fname):
 			bpy.data.objects['mouth'].location[0] = (m_pos[0]) + mouth_origin[0]
 			bpy.data.objects['mouth'].location[1] = (m_pos[2]*-1) + mouth_origin[1]
 			bpy.data.objects['mouth'].location[2] = (m_pos[1]) + mouth_origin[2]
+
+		bpy.data.objects['browOR'].location[0] = (browO_posR[2] * -1) + browOR_origin[0]
+		bpy.data.objects['browOR'].location[1] = (browO_posR[1]) - browOR_origin[1]
+		bpy.data.objects['browOR'].location[2] = (browO_posR[0]) + browOR_origin[2]
+
+		bpy.data.objects['browIR'].location[0] = (browI_posR[2] * -1) + browIR_origin[0]
+		bpy.data.objects['browIR'].location[1] = (browI_posR[1]) - browIR_origin[1]
+		bpy.data.objects['browIR'].location[2] = (browI_posR[0]) + browIR_origin[2]
+
+		bpy.data.objects['browIL'].location[0] = (browI_posL[2] * -1) + browIL_origin[0]
+		bpy.data.objects['browIL'].location[1] = (browI_posL[1]) - browIL_origin[1]
+		bpy.data.objects['browIL'].location[2] = (browI_posL[0]) + browIL_origin[2]
+
+		bpy.data.objects['browOL'].location[0] = (browO_posL[2] * -1) + browOL_origin[0]
+		bpy.data.objects['browOL'].location[1] = (browO_posL[1]) - browOL_origin[1]
+		bpy.data.objects['browOL'].location[2] = (browO_posL[0]) + browOL_origin[2]
+
+		bpy.data.objects['orbiiR'].location[0] = (orbii_posR[2] * -1) + orbiiR_origin[0]
+		bpy.data.objects['orbiiR'].location[1] = (orbii_posR[1]) - orbiiR_origin[1]
+		bpy.data.objects['orbiiR'].location[2] = (orbii_posR[0]) + orbiiR_origin[2]
+
+		bpy.data.objects['orbiiL'].location[0] = (orbii_posL[2] * -1) + orbiiL_origin[0]
+		bpy.data.objects['orbiiL'].location[1] = (orbii_posL[1]) - orbiiL_origin[1]
+		bpy.data.objects['orbiiL'].location[2] = (orbii_posL[0]) + orbiiL_origin[2]
 
 		bpy.data.objects['eyeR'].location[0] = (eyes_posR[2] * -1) + eyeR_origin[0]
 		bpy.data.objects['eyeR'].location[1] = (eyes_posR[1]) - eyeR_origin[1]
@@ -171,6 +247,15 @@ def pes_diff_bin_imp(pes_diff_fname):
 		bpy.data.objects['eyeLidBR'].location[0] = (eyeLidB_posR[2] * -1) + eyeLidBR_origin[0]
 		bpy.data.objects['eyeLidBR'].location[1] = (eyeLidB_posR[1]) - eyeLidBR_origin[1]
 		bpy.data.objects['eyeLidBR'].location[2] = (eyeLidB_posR[0]) + eyeLidBR_origin[2]
+		bpy.data.objects['eyeLidBL'].location[0] = (eyeLidB_posL[2] * -1) + eyeLidBL_origin[0]
+		bpy.data.objects['eyeLidBL'].location[1] = (eyeLidB_posL[1]) - eyeLidBL_origin[1]
+		bpy.data.objects['eyeLidBL'].location[2] = (eyeLidB_posL[0]) + eyeLidBL_origin[2]
+		bpy.data.objects['eyeLidTR'].location[0] = (eyeLidT_posR[2] * -1) + eyeLidTR_origin[0]
+		bpy.data.objects['eyeLidTR'].location[1] = (eyeLidT_posR[1]) - eyeLidTR_origin[1]
+		bpy.data.objects['eyeLidTR'].location[2] = (eyeLidT_posR[0]) + eyeLidTR_origin[2]
+		bpy.data.objects['eyeLidTL'].location[0] = (eyeLidT_posL[2] * -1) + eyeLidTL_origin[0]
+		bpy.data.objects['eyeLidTL'].location[1] = (eyeLidT_posL[1]) - eyeLidTL_origin[1]
+		bpy.data.objects['eyeLidTL'].location[2] = (eyeLidT_posL[0]) + eyeLidTL_origin[2]
 
 		bpy.data.objects['mouthLipBR'].location[0] = (lipBot_posR[2] * -1) + lipBR_origin[0]
 		bpy.data.objects['mouthLipBR'].location[1] = (lipBot_posR[1]) - lipBR_origin[1]
@@ -199,12 +284,62 @@ def pes_diff_bin_imp(pes_diff_fname):
 		bpy.data.objects['mouthLipTL'].location[1] = (lipTop_posL[1]) - lipTL_origin[1]
 		bpy.data.objects['mouthLipTL'].location[2] = (lipTop_posL[0]) + lipTL_origin[2]
 
-		bpy.data.objects['eyeR'].scale[0] = eyes_size[0]*1.2
-		bpy.data.objects['eyeR'].scale[1] = eyes_size[1]*1.2
-		bpy.data.objects['eyeR'].scale[2] = eyes_size[2]*1.2
-		bpy.data.objects['eyeL'].scale[0] = eyes_size[0]*1.2
-		bpy.data.objects['eyeL'].scale[1] = eyes_size[1]*1.2
-		bpy.data.objects['eyeL'].scale[2] = eyes_size[2]*1.2
+		bpy.data.objects['glabella'].location[0] = (glabella_pos[2] * -1) + glabella_origin[0]
+		bpy.data.objects['glabella'].location[1] = (glabella_pos[1]) - glabella_origin[1]
+		bpy.data.objects['glabella'].location[2] = (glabella_pos[0]) + glabella_origin[2]
+
+		bpy.data.objects['noseWR'].location[0] = (noseW_posR[2] * -1) + noseWR_origin[0]
+		bpy.data.objects['noseWR'].location[1] = (noseW_posR[1]) - noseWR_origin[1]
+		bpy.data.objects['noseWR'].location[2] = (noseW_posR[0]) + noseWR_origin[2]
+
+		bpy.data.objects['noseWL'].location[0] = (noseW_posL[2] * -1) + noseWL_origin[0]
+		bpy.data.objects['noseWL'].location[1] = (noseW_posL[1]) - noseWL_origin[1]
+		bpy.data.objects['noseWL'].location[2] = (noseW_posL[0]) + noseWL_origin[2]
+
+		bpy.data.objects['cheekR'].location[0] = (cheek_posR[2] * -1) + cheekR_origin[0]
+		bpy.data.objects['cheekR'].location[1] = (cheek_posR[1]) - cheekR_origin[1]
+		bpy.data.objects['cheekR'].location[2] = (cheek_posR[0]) + cheekR_origin[2]
+
+		bpy.data.objects['nasolR'].location[0] = (nasol_posR[2] * -1) + nasolR_origin[0]
+		bpy.data.objects['nasolR'].location[1] = (nasol_posR[1]) - nasolR_origin[1]
+		bpy.data.objects['nasolR'].location[2] = (nasol_posR[0]) + nasolR_origin[2]
+		bpy.data.objects['nasolL'].location[0] = (nasol_posL[2] * -1) + nasolL_origin[0]
+		bpy.data.objects['nasolL'].location[1] = (nasol_posL[1]) - nasolL_origin[1]
+		bpy.data.objects['nasolL'].location[2] = (nasol_posL[0]) + nasolL_origin[2]
+
+		bpy.data.objects['cheekL'].location[0] = (cheek_posL[2] * -1) + cheekL_origin[0]
+		bpy.data.objects['cheekL'].location[1] = (cheek_posL[1]) - cheekL_origin[1]
+		bpy.data.objects['cheekL'].location[2] = (cheek_posL[0]) + cheekL_origin[2]
+
+		bpy.data.objects['cheekSR'].location[0] = (cheekS_posR[2] * -1) + cheekSR_origin[0]
+		bpy.data.objects['cheekSR'].location[1] = (cheekS_posR[1]) - cheekSR_origin[1]
+		bpy.data.objects['cheekSR'].location[2] = (cheekS_posR[0]) + cheekSR_origin[2]
+		bpy.data.objects['cheekSL'].location[0] = (cheekS_posL[2] * -1) + cheekSL_origin[0]
+		bpy.data.objects['cheekSL'].location[1] = (cheekS_posL[1]) - cheekSL_origin[1]
+		bpy.data.objects['cheekSL'].location[2] = (cheekS_posL[0]) + cheekSL_origin[2]
+
+		bpy.data.objects['nose'].location[0] = (nose_pos[2] * -1) + nose_origin[0]
+		bpy.data.objects['nose'].location[1] = (nose_pos[1]) - nose_origin[1]
+		bpy.data.objects['nose'].location[2] = (nose_pos[0]) + nose_origin[2]
+
+		bpy.data.objects['lipVol'].location[0] = (lipVol_pos[2] * -1) + lipVol_origin[0]
+		bpy.data.objects['lipVol'].location[1] = (lipVol_pos[1]) - lipVol_origin[1]
+		bpy.data.objects['lipVol'].location[2] = (lipVol_pos[0]) + lipVol_origin[2]
+
+		bpy.data.objects['jaw'].location[0] = (jaw_pos[2] * -1) + jaw_origin[0]
+		bpy.data.objects['jaw'].location[1] = (jaw_pos[1]) - jaw_origin[1]
+		bpy.data.objects['jaw'].location[2] = (jaw_pos[0]) + jaw_origin[2]
+
+		bpy.data.objects['doublechin'].location[0] = (doubleC_pos[2] * -1) + doublechin_origin[0]
+		bpy.data.objects['doublechin'].location[1] = (doubleC_pos[1]) - doublechin_origin[1]
+		bpy.data.objects['doublechin'].location[2] = (doubleC_pos[0]) + doublechin_origin[2]
+
+		bpy.data.objects['eyeR'].scale[0] = eyes_size[0]*1
+		bpy.data.objects['eyeR'].scale[1] = eyes_size[1]*1
+		bpy.data.objects['eyeR'].scale[2] = eyes_size[2]*1
+		bpy.data.objects['eyeL'].scale[0] = eyes_size[0]*1
+		bpy.data.objects['eyeL'].scale[1] = eyes_size[1]*1
+		bpy.data.objects['eyeL'].scale[2] = eyes_size[2]*1
 		pes_diff_bin_data.append(eyes_size[0])
 		if os.path.isfile(oralpath):
 			bpy.data.objects['mouth'].select = True
@@ -223,6 +358,29 @@ def pes_diff_bin_exp(pes_diff_fname):
 			m2 = (bpy.data.objects['mouth'].location[1] - mouth_origin[1])*-1
 			m1 = (bpy.data.objects['mouth'].location[2] - mouth_origin[2])
 
+		borx = (bpy.data.objects['browOR'].location[0] - browOR_origin[0])*-1
+		bory = (bpy.data.objects['browOR'].location[1] + browOR_origin[1])
+		borz = (bpy.data.objects['browOR'].location[2] - browOR_origin[2])
+		
+		birx = (bpy.data.objects['browIR'].location[0] - browIR_origin[0])*-1
+		biry = (bpy.data.objects['browIR'].location[1] + browIR_origin[1])
+		birz = (bpy.data.objects['browIR'].location[2] - browIR_origin[2])
+
+		bilx = (bpy.data.objects['browIL'].location[0] - browIL_origin[0])*-1
+		bily = (bpy.data.objects['browIL'].location[1] + browIL_origin[1])
+		bilz = (bpy.data.objects['browIL'].location[2] - browIL_origin[2])
+		
+		bolx = (bpy.data.objects['browOL'].location[0] - browOL_origin[0])*-1
+		boly = (bpy.data.objects['browOL'].location[1] + browOL_origin[1])
+		bolz = (bpy.data.objects['browOL'].location[2] - browOL_origin[2])
+
+		orbiirx = (bpy.data.objects['orbiiR'].location[0] - orbiiR_origin[0])*-1
+		orbiiry = (bpy.data.objects['orbiiR'].location[1] - orbiiR_origin[1])
+		orbiirz = (bpy.data.objects['orbiiR'].location[2] - orbiiR_origin[2])
+		orbiilx = (bpy.data.objects['orbiiL'].location[0] - orbiiL_origin[0])*-1
+		orbiily = (bpy.data.objects['orbiiL'].location[1] - orbiiL_origin[1])
+		orbiilz = (bpy.data.objects['orbiiL'].location[2] - orbiiL_origin[2])
+
 		rx = (bpy.data.objects['eyeR'].location[0] - eyeR_origin[0])*-1
 		ry = (bpy.data.objects['eyeR'].location[1] + eyeR_origin[1])
 		rz = (bpy.data.objects['eyeR'].location[2] - eyeR_origin[2])
@@ -234,6 +392,15 @@ def pes_diff_bin_exp(pes_diff_fname):
 		elbrx = (bpy.data.objects['eyeLidBR'].location[0] - eyeLidBR_origin[0])*-1
 		elbry = (bpy.data.objects['eyeLidBR'].location[1] + eyeLidBR_origin[1])
 		elbrz = (bpy.data.objects['eyeLidBR'].location[2] - eyeLidBR_origin[2])
+		elblx = (bpy.data.objects['eyeLidBL'].location[0] - eyeLidBL_origin[0])*-1
+		elbly = (bpy.data.objects['eyeLidBL'].location[1] + eyeLidBL_origin[1])
+		elblz = (bpy.data.objects['eyeLidBL'].location[2] - eyeLidBL_origin[2])
+		eltrx = (bpy.data.objects['eyeLidTR'].location[0] - eyeLidTR_origin[0])*-1
+		eltry = (bpy.data.objects['eyeLidTR'].location[1] + eyeLidTR_origin[1])
+		eltrz = (bpy.data.objects['eyeLidTR'].location[2] - eyeLidTR_origin[2])
+		eltlx = (bpy.data.objects['eyeLidTL'].location[0] - eyeLidTL_origin[0])*-1
+		eltly = (bpy.data.objects['eyeLidTL'].location[1] + eyeLidTL_origin[1])
+		eltlz = (bpy.data.objects['eyeLidTL'].location[2] - eyeLidTL_origin[2])
 
 		lipbrx = (bpy.data.objects['mouthLipBR'].location[0] - lipBR_origin[0])*-1
 		lipbry = (bpy.data.objects['mouthLipBR'].location[1] + lipBR_origin[1])
@@ -262,12 +429,62 @@ def pes_diff_bin_exp(pes_diff_fname):
 		liptly = (bpy.data.objects['mouthLipTL'].location[1] + lipTL_origin[1])
 		liptlz = (bpy.data.objects['mouthLipTL'].location[2] - lipTL_origin[2])
 
-		bpy.data.objects['eyeR'].scale[0] = scn.eyes_size*1.2
-		bpy.data.objects['eyeR'].scale[1] = scn.eyes_size*1.2
-		bpy.data.objects['eyeR'].scale[2] = scn.eyes_size*1.2
-		bpy.data.objects['eyeL'].scale[0] = scn.eyes_size*1.2
-		bpy.data.objects['eyeL'].scale[1] = scn.eyes_size*1.2
-		bpy.data.objects['eyeL'].scale[2] = scn.eyes_size*1.2
+		glax = (bpy.data.objects['glabella'].location[0] - glabella_origin[0])*-1
+		glay = (bpy.data.objects['glabella'].location[1] + glabella_origin[1])
+		glaz = (bpy.data.objects['glabella'].location[2] - glabella_origin[2])
+
+		nowrx = (bpy.data.objects['noseWR'].location[0] - noseWR_origin[0])*-1
+		nowry = (bpy.data.objects['noseWR'].location[1] + noseWR_origin[1])
+		nowrz = (bpy.data.objects['noseWR'].location[2] - noseWR_origin[2])
+
+		nowlx = (bpy.data.objects['noseWL'].location[0] - noseWL_origin[0])*-1
+		nowly = (bpy.data.objects['noseWL'].location[1] + noseWL_origin[1])
+		nowlz = (bpy.data.objects['noseWL'].location[2] - noseWL_origin[2])
+
+		crrx = (bpy.data.objects['cheekR'].location[0] - cheekR_origin[0])*-1
+		crry = (bpy.data.objects['cheekR'].location[1] + cheekR_origin[1])
+		crrz = (bpy.data.objects['cheekR'].location[2] - cheekR_origin[2])
+
+		nasorx = (bpy.data.objects['nasolR'].location[0] - nasolR_origin[0])*-1
+		nasory = (bpy.data.objects['nasolR'].location[1] + nasolR_origin[1])
+		nasorz = (bpy.data.objects['nasolR'].location[2] - nasolR_origin[2])
+		nasolx = (bpy.data.objects['nasolL'].location[0] - nasolL_origin[0])*-1
+		nasoly = (bpy.data.objects['nasolL'].location[1] + nasolL_origin[1])
+		nasolz = (bpy.data.objects['nasolL'].location[2] - nasolL_origin[2])
+
+		crlx = (bpy.data.objects['cheekL'].location[0] - cheekL_origin[0])*-1
+		crly = (bpy.data.objects['cheekL'].location[1] + cheekL_origin[1])
+		crlz = (bpy.data.objects['cheekL'].location[2] - cheekL_origin[2])
+
+		csrx = (bpy.data.objects['cheekSR'].location[0] - cheekSR_origin[0])*-1
+		csry = (bpy.data.objects['cheekSR'].location[1] + cheekSR_origin[1])
+		csrz = (bpy.data.objects['cheekSR'].location[2] - cheekSR_origin[2])
+		cslx = (bpy.data.objects['cheekSL'].location[0] - cheekSL_origin[0])*-1
+		csly = (bpy.data.objects['cheekSL'].location[1] + cheekSL_origin[1])
+		cslz = (bpy.data.objects['cheekSL'].location[2] - cheekSL_origin[2])
+
+		nosex = (bpy.data.objects['nose'].location[0] - nose_origin[0])*-1
+		nosey = (bpy.data.objects['nose'].location[1] + nose_origin[1])
+		nosez = (bpy.data.objects['nose'].location[2] - nose_origin[2])
+
+		lipvx = (bpy.data.objects['lipVol'].location[0] - lipVol_origin[0])*-1
+		lipvy = (bpy.data.objects['lipVol'].location[1] + lipVol_origin[1])
+		lipvz = (bpy.data.objects['lipVol'].location[2] - lipVol_origin[2])
+
+		jawx = (bpy.data.objects['jaw'].location[0] - jaw_origin[0])*-1
+		jawy = (bpy.data.objects['jaw'].location[1] + jaw_origin[1])
+		jawz = (bpy.data.objects['jaw'].location[2] - jaw_origin[2])
+
+		dbcx = (bpy.data.objects['doublechin'].location[0] - doublechin_origin[0])*-1
+		dbcy = (bpy.data.objects['doublechin'].location[1] + doublechin_origin[1])
+		dbcz = (bpy.data.objects['doublechin'].location[2] - doublechin_origin[2])
+
+		bpy.data.objects['eyeR'].scale[0] = scn.eyes_size*1
+		bpy.data.objects['eyeR'].scale[1] = scn.eyes_size*1
+		bpy.data.objects['eyeR'].scale[2] = scn.eyes_size*1
+		bpy.data.objects['eyeL'].scale[0] = scn.eyes_size*1
+		bpy.data.objects['eyeL'].scale[1] = scn.eyes_size*1
+		bpy.data.objects['eyeL'].scale[2] = scn.eyes_size*1
 
 		pes_diff_data = open(pes_diff_fname, 'r+b')
 		#Writing eye size
@@ -279,12 +496,48 @@ def pes_diff_bin_exp(pes_diff_fname):
 		   pes_diff_data.write(struct.pack('3f', m0, m1, m2))
 		
 		# Block 2
+		pes_diff_data.seek(0xE0 + (0x10 * 1))
+		pes_diff_data.write(struct.pack('3f', borz, bory, borx))  # Write brow outer right
+		pes_diff_data.seek(0xE0 + (0x10 * 2))
+		pes_diff_data.write(struct.pack('3f', birz, biry, birx))  # Write brow inner right
+		pes_diff_data.seek(0xE0 + (0x10 * 3))
+		pes_diff_data.write(struct.pack('3f', bilz, bily, bilx)) # Write brow inner left
+		pes_diff_data.seek(0xE0 + (0x10 * 4))
+		pes_diff_data.write(struct.pack('3f', bolz, boly, bolx)) # Write brow outer left
+		pes_diff_data.seek(0xE0 + (0x10 * 5))
+		pes_diff_data.write(struct.pack('3f', orbiirz, orbiiry, orbiirx)) # Write right orbicularis oculi
+		pes_diff_data.seek(0xE0 + (0x10 * 6))
+		pes_diff_data.write(struct.pack('3f', orbiilz, orbiily, orbiilx)) # Write left orbicularis oculi
 		pes_diff_data.seek(0xE0 + (0x10 * 7))
 		pes_diff_data.write(struct.pack('3f', rz, ry, rx))  # Write eye Right
 		pes_diff_data.seek(0xE0 + (0x10 * 8))
 		pes_diff_data.write(struct.pack('3f', lz, ly, lx))  # Write eye Left
 		pes_diff_data.seek(0xE0 + (0x10 * 9))
 		pes_diff_data.write(struct.pack('3f', elbrz, elbry, elbrx)) # Write bottom right eyelid
+		pes_diff_data.seek(0xE0 + (0x10 * 10))
+		pes_diff_data.write(struct.pack('3f', elblz, elbly, elblx)) # Write bottom left eyelid
+		pes_diff_data.seek(0xE0 + (0x10 * 11))
+		pes_diff_data.write(struct.pack('3f', eltrz, eltry, eltrx)) # Write top right eyelid
+		pes_diff_data.seek(0xE0 + (0x10 * 12))
+		pes_diff_data.write(struct.pack('3f', eltlz, eltly, eltlx)) # Write top left eyelid
+		pes_diff_data.seek(0xE0 + (0x10 * 13))
+		pes_diff_data.write(struct.pack('3f', glaz, glay, glax)) # Write glabella
+		pes_diff_data.seek(0xE0 + (0x10 * 14))
+		pes_diff_data.write(struct.pack('3f', nowrz, nowry, nowrx)) # Write right nose wing
+		pes_diff_data.seek(0xE0 + (0x10 * 15))
+		pes_diff_data.write(struct.pack('3f', nowlz, nowly, nowlx)) # Write left nose wing
+		pes_diff_data.seek(0xE0 + (0x10 * 16))
+		pes_diff_data.write(struct.pack('3f', crrz, crry, crrx)) # Write right cheek
+		pes_diff_data.seek(0xE0 + (0x10 * 17))
+		pes_diff_data.write(struct.pack('3f', nasorz, nasory, nasorx)) # Write top right nasolabial fold
+		pes_diff_data.seek(0xE0 + (0x10 * 18))
+		pes_diff_data.write(struct.pack('3f', nasolz, nasoly, nasolx)) # Write top left nasolabial fold
+		pes_diff_data.seek(0xE0 + (0x10 * 19))
+		pes_diff_data.write(struct.pack('3f', crlz, crly, crlx)) # Write left cheek
+		pes_diff_data.seek(0xE0 + (0x10 * 20))
+		pes_diff_data.write(struct.pack('3f', csrz, csry, csrx)) # Write right side cheek
+		pes_diff_data.seek(0xE0 + (0x10 * 21))
+		pes_diff_data.write(struct.pack('3f', cslz, csly, cslx)) # Write left side cheek
 		pes_diff_data.seek(0xE0 + (0x10 * 22))
 		pes_diff_data.write(struct.pack('3f', liptrz, liptry, liptrx)) # Write lip top right
 		pes_diff_data.seek(0xE0 + (0x10 * 23))
@@ -293,12 +546,20 @@ def pes_diff_bin_exp(pes_diff_fname):
 		pes_diff_data.write(struct.pack('3f', lipslz, lipsly, lipslx)) # Write lip side left
 		pes_diff_data.seek(0xE0 + (0x10 * 25))
 		pes_diff_data.write(struct.pack('3f', liptlz, liptly, liptlx)) # Write lip top left
+		pes_diff_data.seek(0xE0 + (0x10 * 26))
+		pes_diff_data.write(struct.pack('3f', nosez, nosey, nosex)) # Write nose
 		pes_diff_data.seek(0xE0 + (0x10 * 27))
 		pes_diff_data.write(struct.pack('3f', liptcz, liptcy, liptcx)) # Write lip top centre
+		pes_diff_data.seek(0xE0 + (0x10 * 28))
+		pes_diff_data.write(struct.pack('3f', lipvz, lipvy, lipvx)) # Write lip volume
+		pes_diff_data.seek(0xE0 + (0x10 * 29))
+		pes_diff_data.write(struct.pack('3f', jawz, jawy, jawx)) # Write jaw
 		pes_diff_data.seek(0xE0 + (0x10 * 30))
 		pes_diff_data.write(struct.pack('3f', lipblz, lipbly, lipblx)) # Write lip bottom left
 		pes_diff_data.seek(0xE0 + (0x10 * 31))
 		pes_diff_data.write(struct.pack('3f', lipbrz, lipbry, lipbrx)) # Write lip bottom right
+		pes_diff_data.seek(0xE0 + (0x10 * 32))
+		pes_diff_data.write(struct.pack('3f', dbcz, dbcy, dbcx)) # Write doublechin
 		pes_diff_data.seek(0xE0 + (0x10 * 33))
 		pes_diff_data.write(struct.pack('3f', lipbcz, lipbcy, lipbcx)) # Write lip bottom centre
 		pes_diff_data.flush()
@@ -637,8 +898,8 @@ class FMDL_Scene_Extract_Fpk(bpy.types.Operator, bpy_extras.io_utils.ImportHelpe
 		oralpath = facepath[:-14] + "oral.fmdl"
 		pes_diff_fname = facepath[:-14] + "face_diff.bin"
 		dirpath = facepath[:-29] + "\\sourceimages\\#windx11"
-		if context.scene.fmdl_import_load_textures:
-			texture_load(dirpath)
+		#if context.scene.fmdl_import_load_textures:
+		#	texture_load(dirpath)
 		if self.face_high_fmdl:
 			if not "face_high" in bpy.data.objects:
 				pes_diff_bin_data.clear()
@@ -1416,12 +1677,12 @@ def update_shadow_enum(self, context):
 def update_eye_size(self, context):
 	if len(pes_diff_bin_data) != 0:
 		try:
-			bpy.data.objects['eyeR'].scale[0] = self.eyes_size*1.2
-			bpy.data.objects['eyeR'].scale[1] = self.eyes_size*1.2
-			bpy.data.objects['eyeR'].scale[2] = self.eyes_size*1.2
-			bpy.data.objects['eyeL'].scale[0] = self.eyes_size*1.2
-			bpy.data.objects['eyeL'].scale[1] = self.eyes_size*1.2
-			bpy.data.objects['eyeL'].scale[2] = self.eyes_size*1.2
+			bpy.data.objects['eyeR'].scale[0] = self.eyes_size*1
+			bpy.data.objects['eyeR'].scale[1] = self.eyes_size*1
+			bpy.data.objects['eyeR'].scale[2] = self.eyes_size*1
+			bpy.data.objects['eyeL'].scale[0] = self.eyes_size*1
+			bpy.data.objects['eyeL'].scale[1] = self.eyes_size*1
+			bpy.data.objects['eyeL'].scale[2] = self.eyes_size*1
 		except:
 			pass
 
